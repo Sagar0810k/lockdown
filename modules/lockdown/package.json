@@ -1,0 +1,9 @@
+{
+  "name": "lockdown-module",
+  "version": "1.0.0",
+  "description": "Native core for the Lockdown focus-lock app (installed-app list, DND silent mode, session enforcement via AccessibilityService).",
+  "license": "MIT",
+  "peerDependencies": {
+    "expo": "*"
+  }
+}
