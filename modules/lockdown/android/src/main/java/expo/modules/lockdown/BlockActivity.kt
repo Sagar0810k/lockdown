@@ -131,7 +131,6 @@ class BlockActivity : Activity() {
       max = holdMs
       progress = 0
       setProgressTintList(android.content.res.ColorStateList.valueOf(amber))
-      setTrackTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#232B4A")))
       layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(8))
     }
 
@@ -148,16 +147,18 @@ class BlockActivity : Activity() {
     var holding = false
     var held = 0L
     val holdHandler = Handler(Looper.getMainLooper())
-    val step = Runnable {
-      if (!holding) return@Runnable
-      held += 50
-      progress.progress = held.toInt()
-      if (held >= holdMs) {
-        holding = false
-        SessionStore.endSession(this, if (isStrict) "emergency" else "quit")
-        goHome()
-      } else {
-        holdHandler.postDelayed(this, 50)
+    val step = object : Runnable {
+      override fun run() {
+        if (!holding) return
+        held += 50
+        progress.progress = held.toInt()
+        if (held >= holdMs) {
+          holding = false
+          SessionStore.endSession(this@BlockActivity, if (isStrict) "emergency" else "quit")
+          goHome()
+        } else {
+          holdHandler.postDelayed(this, 50)
+        }
       }
     }
     holdLabel.setOnTouchListener { _, event ->
