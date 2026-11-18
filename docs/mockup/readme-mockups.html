@@ -16,19 +16,19 @@
   .notch { position:absolute; top:12px; left:50%; transform:translateX(-50%); width:120px; height:22px; background:#060a18; border-radius:14px; z-index:5; }
   .status { height:40px; flex:0 0 40px; display:flex; align-items:center; justify-content:space-between; padding:10px 26px 0; color:var(--ink); font-size:13px; font-weight:700; }
   .status .right { display:flex; align-items:center; gap:6px; }
-  .body { flex:1; overflow:hidden; padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
+  .body { flex:1; overflow:hidden; padding:10px 13px; display:flex; flex-direction:column; gap:8px; }
   .tabbar { flex:0 0 58px; border-top:1px solid var(--border); background:var(--surface); display:flex; }
   .tab { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; color:var(--dim); font-size:10px; font-weight:700; }
   .tab.on { color:var(--amber); }
   .tab svg { fill:currentColor; }
 
-  .brandRow { display:flex; align-items:center; gap:12px; margin-top:2px; }
+  .brandRow { display:flex; align-items:center; gap:8px; margin-top:2px; }
   .brandMark { width:42px; height:42px; border-radius:12px; background:var(--amber); display:flex; align-items:center; justify-content:center; }
   .brand { color:var(--ink); font-size:28px; font-weight:800; flex:1; letter-spacing:.3px; }
   .streak { display:flex; align-items:center; gap:5px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:6px 12px; color:var(--amber); font-weight:800; font-size:13px; }
   .tagline { color:var(--muted); font-size:13px; margin-top:-6px; }
 
-  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:11px; }
   .statRow { display:flex; align-items:center; padding:16px; }
   .statCol { flex:1; text-align:center; }
   .statVal { color:var(--amber); font-size:24px; font-weight:800; }
@@ -49,7 +49,7 @@
   .stepVal { color:var(--ink); font-size:20px; font-weight:800; min-width:64px; text-align:center; }
   .stepVal small { color:var(--muted); font-size:12px; font-weight:600; }
 
-  .toggleRow { display:flex; align-items:center; gap:12px; padding:10px 0; }
+  .toggleRow { display:flex; align-items:center; gap:8px; padding:10px 0; }
   .toggleRow + .toggleRow { border-top:1px solid var(--border); }
   .tIcon { width:40px; height:40px; border-radius:10px; background:var(--surface2); display:flex; align-items:center; justify-content:center; }
   .tTitle { color:var(--ink); font-weight:700; font-size:15px; }
@@ -65,7 +65,7 @@
   .bSub { color:var(--muted); font-size:12px; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:225px; }
   .chev { margin-left:auto; color:var(--muted); }
 
-  .cta { margin-top:4px; height:62px; border-radius:18px; background:var(--amber); display:flex; align-items:center; justify-content:center; gap:12px; color:#0B1020; font-size:19px; font-weight:900; letter-spacing:2px; }
+  .cta { margin-top:4px; height:62px; border-radius:18px; background:var(--amber); display:flex; align-items:center; justify-content:center; gap:8px; color:#0B1020; font-size:19px; font-weight:900; letter-spacing:2px; }
   .ctaNote { color:var(--dim); text-align:center; font-size:11px; margin-top:-2px; }
 
   .searchBox { display:flex; align-items:center; gap:9px; background:var(--surface); border:1px solid var(--border); border-radius:16px; height:48px; padding:0 13px; color:var(--muted); font-size:15px; }
@@ -75,7 +75,7 @@
   .link { color:var(--amber); font-size:13px; font-weight:700; }
   .link.red { color:var(--red); }
   .appList { flex:1; display:flex; flex-direction:column; gap:2px; }
-  .appRow { display:flex; align-items:center; gap:12px; padding:9px 8px; border-radius:16px; }
+  .appRow { display:flex; align-items:center; gap:8px; padding:9px 8px; border-radius:16px; }
   .avatar { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--ink); font-weight:800; font-size:19px; }
   .aName { color:var(--ink); font-weight:700; font-size:15px; }
   .aPkg { color:var(--muted); font-size:11px; margin-top:1px; }
@@ -96,7 +96,7 @@
   .holdBtn { width:100%; height:56px; border-radius:16px; border:1px solid var(--red); background:#241018; display:flex; align-items:center; justify-content:center; color:var(--red); font-weight:800; font-size:13px; letter-spacing:1.2px; }
   .warn { color:var(--dim); font-size:11px; }
 
-  .pageTitle { color:var(--ink); font-size:30px; font-weight:900; margin-top:4px; }
+  .pageTitle { color:var(--ink); font-size:25px; font-weight:900; margin-top:4px; }
   .grid { display:flex; gap:10px; flex-wrap:wrap; }
   .statCard { flex:1 1 42%; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px 15px; }
   .statCard .v { color:var(--ink); font-size:26px; font-weight:900; margin:6px 0 2px; }
@@ -118,17 +118,21 @@
   .pill { border:1px solid var(--green); color:var(--green); font-size:11px; font-weight:800; border-radius:999px; padding:5px 12px; }
   .pill.amber { border-color:var(--amber); color:var(--amber); }
 
-  .permRow { display:flex; align-items:center; gap:12px; padding:11px 0; }
+  .permRow { display:flex; align-items:center; gap:8px; padding:11px 0; }
   .permRow + .permRow { border-top:1px solid var(--border); }
   .dot { width:10px; height:10px; border-radius:50%; background:var(--green); flex:0 0 10px; }
-  .permTitle { color:var(--ink); font-weight:800; font-size:15px; }
-  .permDesc { color:var(--muted); font-size:12px; margin-top:3px; line-height:1.4; }
+  .permTitle { color:var(--ink); font-weight:800; font-size:14px; }
+  .permDesc { color:var(--muted); font-size:10.5px; margin-top:3px; line-height:1.4; }
   .okBadge { border:1px solid var(--green); color:var(--green); font-size:11px; font-weight:900; border-radius:8px; padding:5px 12px; letter-spacing:1px; margin-left:auto; }
-  .howRow { display:flex; gap:12px; align-items:flex-start; }
-  .howNum { width:24px; height:24px; border-radius:12px; background:var(--surface2); color:var(--amber); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:0 0 24px; }
-  .howText { color:var(--ink); font-size:13px; line-height:1.5; }
-  .fineRow { display:flex; gap:8px; align-items:flex-start; }
-  .fineText { color:var(--muted); font-size:12px; line-height:1.55; }
+  .howRow { display:flex; gap:10px; align-items:flex-start; }
+  .howNum { width:20px; height:20px; border-radius:10px; background:var(--surface2); color:var(--amber); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:0 0 24px; }
+  .howText { color:var(--ink); font-size:11.5px; line-height:1.35; }
+  .fineRow { display:flex; gap:7px; align-items:flex-start; }
+  .aboutRow { display:flex; align-items:center; gap:14px; }
+  .aboutMark { width:46px; height:46px; border-radius:12px; background:var(--amber); display:flex; align-items:center; justify-content:center; flex:0 0 46px; }
+  .aboutTitle { color:var(--ink); font-weight:800; font-size:16px; }
+  .aboutSub { color:var(--muted); font-size:12px; margin-top:2px; }
+  .fineText { color:var(--muted); font-size:11px; line-height:1.4; }
 
   .hero { width:1580px; height:520px; border-radius:28px; background:radial-gradient(1000px 500px at 18% 50%, #1a2348 0%, #0B1020 55%); border:1px solid #263055; display:flex; align-items:center; padding:0 90px; gap:80px; position:relative; overflow:hidden; }
   .heroGlow { position:absolute; right:-140px; top:-200px; width:640px; height:640px; border-radius:50%; background:radial-gradient(circle, rgba(245,185,66,.16) 0%, transparent 65%); }
@@ -194,6 +198,7 @@
     <div class="sect">APPS LOCKED</div>
     <div class="card blockedCard">
       <div class="bIcon"><svg width="22" height="22" viewBox="0 0 24 24" fill="#F5B942"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/></svg>Stats</div>
       <div style="flex:1;min-width:0"><div class="bTitle">2 apps will be locked</div><div class="bSub">Instagram, YouTube</div></div>
       <svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A93B2" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
     </div>
@@ -204,6 +209,7 @@
   <div class="tabbar">
     <div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h4v8z"/></svg>Focus</div>
     <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>Apps</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/></svg>Stats</div>
     <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/></svg>Stats</div>
     <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 .0 8.001A4 4 0 0 0 12 8zm8.7 4l1.8 1.4a.9.9 0 0 1 .35 1.13l-2 4.9a.9.9 0 0 1-1.13.6l-2.13-.52a7.6 7.6 0 0 1-1 .65l-.6 2.24a.9.9 0 0 1-.88.67h-6a.9.9 0 0 1-.88-.67l-.6-2.24a7.6 7.6 0 0 1-1-.65l-2.13.52a.9.9 0 0 1-1.13-.6l-2-4.9a.9.9 0 0 1 .35-1.13L3.3 12a7.3 7.3 0 0 1 0-1.4l-2.2-1.4a.9.9 0 0 1-.35-1.13l2-4.9a.9.9 0 0 1 1.13-.6l2.13.52a7.6 7.6 0 0 1 1-.65l.6-2.24a.9.9 0 0 1 .88-.67h6a.9.9 0 0 1 .88.67l.6 2.24a7.6 7.6 0 0 1 1 .65l2.13-.52a.9.9 0 0 1 1.13.6l2 4.9a.9.9 0 0 1-.35 1.13L20.7 11c.3.45.3.55 0 1z"/></svg>Setup</div>
   </div>
@@ -232,6 +238,7 @@
   <div class="tabbar">
     <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h4v8z"/></svg>Focus</div>
     <div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>Apps</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/></svg>Stats</div>
     <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/></svg>Stats</div>
     <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 .0 8.001A4 4 0 0 0 12 8zm8.7 4l1.8 1.4a.9.9 0 0 1 .35 1.13l-2 4.9a.9.9 0 0 1-1.13.6l-2.13-.52a7.6 7.6 0 0 1-1 .65l-.6 2.24a.9.9 0 0 1-.88.67h-6a.9.9 0 0 1-.88-.67l-.6-2.24a7.6 7.6 0 0 1-1-.65l-2.13.52a.9.9 0 0 1-1.13-.6l-2-4.9a.9.9 0 0 1 .35-1.13L3.3 12a7.3 7.3 0 0 1 0-1.4l-2.2-1.4a.9.9 0 0 1-.35-1.13l2-4.9a.9.9 0 0 1 1.13-.6l2.13.52a7.6 7.6 0 0 1 1-.65l.6-2.24a.9.9 0 0 1 .88-.67h6a.9.9 0 0 1 .88.67l.6 2.24a7.6 7.6 0 0 1 1 .65l2.13-.52a.9.9 0 0 1 1.13.6l2 4.9a.9.9 0 0 1-.35 1.13L20.7 11c.3.45.3.55 0 1z"/></svg>Setup</div>
   </div>
@@ -286,6 +293,7 @@
   <div class="tabbar">
     <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h4v8z"/></svg>Focus</div>
     <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>Apps</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/></svg>Stats</div>
     <div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/></svg>Stats</div>
     <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 .0 8.001A4 4 0 0 0 12 8zm8.7 4l1.8 1.4a.9.9 0 0 1 .35 1.13l-2 4.9a.9.9 0 0 1-1.13.6l-2.13-.52a7.6 7.6 0 0 1-1 .65l-.6 2.24a.9.9 0 0 1-.88.67h-6a.9.9 0 0 1-.88-.67l-.6-2.24a7.6 7.6 0 0 1-1-.65l-2.13.52a.9.9 0 0 1-1.13-.6l-2-4.9a.9.9 0 0 1 .35-1.13L3.3 12a7.3 7.3 0 0 1 0-1.4l-2.2-1.4a.9.9 0 0 1-.35-1.13l2-4.9a.9.9 0 0 1 1.13-.6l2.13.52a7.6 7.6 0 0 1 1-.65l.6-2.24a.9.9 0 0 1 .88-.67h6a.9.9 0 0 1 .88.67l.6 2.24a7.6 7.6 0 0 1 1 .65l2.13-.52a.9.9 0 0 1 1.13.6l2 4.9a.9.9 0 0 1-.35 1.13L20.7 11c.3.45.3.55 0 1z"/></svg>Setup</div>
   </div>
@@ -293,7 +301,7 @@
 <div class="caption">stats.png — Stats: streak, minutes, temptation leaderboard.</div>
 
 <!-- ============ SCREEN 5: SETUP ============ -->
-<div class="phone" id="shot-setup">
+<div class="phone" id="shot-setup" style="height:1080px">
   <div class="notch"></div>
   <div class="status"><span>9:41</span><span class="right"><svg width="17" height="12" viewBox="0 0 17 12" fill="#E7EAF5"><path d="M1 7h3v4H1zM6 4.5h3V11H6zM11 2h3v9h-3zM16 0h1v11h-1z"/></svg><span style="font-size:12px">▮</span></span></div>
   <div class="body">
@@ -314,11 +322,21 @@
 
     <div class="sect">HONEST FINE PRINT</div>
     <div class="card" style="display:flex;flex-direction:column;gap:9px">
-      <div class="fineRow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12v4M12 8h.01"/></svg><div class="fineText"><b style="color:var(--ink)">Emergency:</b> Phone app and 911 always stay available — Lockdown never blocks calls.</div></div>
-      <div class="fineRow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12v4M12 8h.01"/></svg><div class="fineText"><b style="color:var(--ink)">Clock-proof:</b> sessions run on the phone's monotonic clock, so changing the time can't end a duration early.</div></div>
+      <div class="fineRow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12v4M12 8h.01"/></svg><div class="fineText"><b style="color:var(--ink)">Emergency:</b> Phone app and 911 always stay available - Lockdown never blocks calls.</div></div>
+      <div class="fineRow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12v4M12 8h.01"/></svg><div class="fineText"><b style="color:var(--ink)">Clock-proof:</b> sessions run on the phone monotonic clock, so changing the time can't end a duration early.</div></div>
       <div class="fineRow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12v4M12 8h.01"/></svg><div class="fineText"><b style="color:var(--ink)">Strict mode</b> also blocks Settings &amp; Play Store so the lock can't be switched off mid-session.</div></div>
-      <div class="fineRow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12v4M12 8h.01"/></svg><div class="fineText"><b style="color:var(--ink)">No app is unstoppable.</b> A determined user can disable accessibility in system settings — a commitment device, not a vault.</div></div>
+      <div class="fineRow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12v4M12 8h.01"/></svg><div class="fineText"><b style="color:var(--ink)">No app is unstoppable.</b> A determined user can disable accessibility in system settings - a commitment device, not a vault.</div></div>
       <div class="fineRow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12v4M12 8h.01"/></svg><div class="fineText"><b style="color:var(--ink)">On-device only.</b> No account, no cloud, no tracking, no telemetry.</div></div>
+    </div>
+
+    <div class="sect">ABOUT</div>
+    <div class="card">
+      <div class="aboutRow"><div class="aboutMark"><svg width="18" height="18" viewBox="0 0 24 24" fill="#0B1020"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"/></svg></div><div><div class="aboutTitle">Lockdown 1.0.0</div><div class="aboutSub">Focus study lock - on-device only</div></div></div>
+    </div>
+
+    <div class="sect">MADE BY</div>
+    <div class="card">
+      <div class="aboutRow"><div class="aboutMark" style="border-radius:23px;border:1px solid var(--amber)"><span style="color:#0B1020;font-size:22px;font-weight:900">S</span></div><div><div class="aboutTitle">Sagar</div><div class="aboutSub">Solo developer - building tools for distraction-free work</div></div></div>
     </div>
   </div>
   <div class="tabbar">

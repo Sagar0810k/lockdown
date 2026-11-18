@@ -17,7 +17,7 @@
 
 ---
 
-> ⚠️ **Known issue — currently distributed APK (build `0850cdb2`):** the release build runs R8 without keep rules for the native module, so `ExpoModulesPackageList` and `expo.modules.lockdown.*` were stripped. The app UI opens, but **the Setup tab's GRANT buttons do nothing** and **START LOCKDOWN** does not work. **Fix:** committed in `ee6b612` (`plugins/withLockdownKeepRules.js`) — included in the next Android build. See [Build & distribution](#build--distribution). Debug builds (`expo run:android`) are unaffected.
+> ✅ **Recommended install:** use the APK from **GitHub Releases** (linked in [Installation](#installation)). The older EAS-built sideloaded APK from build `0850cdb2` is broken (R8 stripped the native module) — do not use it. Release builds from `master` include the fix committed in `ee6b612` (`plugins/withLockdownKeepRules.js`). Debug builds (`expo run:android`) are unaffected either way.
 
 ## Why Lockdown exists
 
@@ -104,12 +104,13 @@ Strict mode additionally adds `com.android.settings`, `com.android.vending` and 
 
 ## Installation
 
-The app is distributed as an installable APK (sideloaded, not Play Store):
+The app is distributed as an installable APK via **GitHub Releases** (sideloaded, not Play Store):
 
-1. Open the latest build on the EAS builds page (see [Build & distribution](#build--distribution)).
-2. Tap the **Application Archive URL** to download the `.apk`, or from a PC:
+1. Go to the Releases page: https://github.com/Sagar0810k/lockdown/releases
+2. Download **`Lockdown-1.0.0.apk`** from the latest release (rolling release, built automatically from the latest `master` by GitHub Actions). Or from a PC:
    ```sh
-   adb install lockdown.apk
+   curl -L -o Lockdown-1.0.0.apk https://github.com/Sagar0810k/lockdown/releases/download/v1.0.0/Lockdown-1.0.0.apk
+   adb install Lockdown-1.0.0.apk
    ```
 3. Open the app → **Setup** tab → grant the two permissions (Accessibility, Do Not Disturb) → pick apps in **Apps** → **START LOCKDOWN**.
 
@@ -122,6 +123,11 @@ npm ci
 npx expo prebuild --no-install          # generate android/ from CNG
 npx eas build -p android --profile preview   # produces the installable APK
 ```
+
+**GitHub Releases:** every push to `master` triggers the [Build APK](https://github.com/Sagar0810k/lockdown/actions/workflows/build-apk.yml) workflow, which builds the APK and publishes it automatically to the rolling release:
+
+- Releases: https://github.com/Sagar0810k/lockdown/releases
+- Direct asset: https://github.com/Sagar0810k/lockdown/releases/download/v1.0.0/Lockdown-1.0.0.apk
 
 Project links:
 

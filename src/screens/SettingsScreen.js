@@ -86,6 +86,19 @@ export default function SettingsScreen({ refreshTick }) {
           </View>
         </View>
       </Card>
+
+      <SectionTitle>Made by</SectionTitle>
+      <Card>
+        <View style={styles.aboutRow}>
+          <View style={[styles.aboutMark, styles.madeMark]}>
+            <Text style={styles.madeLetter}>S</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.aboutTitle}>Sagar</Text>
+            <Text style={styles.aboutSub}>Solo developer · building tools for distraction-free work</Text>
+          </View>
+        </View>
+      </Card>
     </ScrollView>
   );
 }
@@ -147,6 +160,8 @@ const styles = StyleSheet.create({
   fineText: { color: C.muted, fontSize: 12, lineHeight: 18, flex: 1 },
   aboutRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   aboutMark: { width: 46, height: 46, borderRadius: 12, backgroundColor: C.amber, alignItems: 'center', justifyContent: 'center' },
+  madeMark: { borderRadius: 23, borderWidth: 1, borderColor: C.amber },
+  madeLetter: { color: '#0B1020', fontSize: 22, fontWeight: '900' },
   aboutTitle: { color: C.ink, fontWeight: '800', fontSize: 16 },
   aboutSub: { color: C.muted, fontSize: 12, marginTop: 2 },
 });
