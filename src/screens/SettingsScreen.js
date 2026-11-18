@@ -7,6 +7,8 @@ import { Lockdown, nativeAvailable } from '../native';
 
 export default function SettingsScreen({ refreshTick }) {
   const [perms, setPerms] = useState({ usage: null, overlay: null, dnd: null, notifications: null });
+  const [diag, setDiag] = useState(null);
+  const [diagRefreshing, setDiagRefreshing] = useState(false);
 
   const check = async () => {
     if (!nativeAvailable) return;
@@ -23,9 +25,27 @@ export default function SettingsScreen({ refreshTick }) {
     }
   };
 
+  const checkDiagnostics = async (showSpinner = false) => {
+    if (!nativeAvailable || typeof Lockdown.getBlockingDiagnostics !== 'function') return;
+    if (showSpinner) setDiagRefreshing(true);
+    try {
+      setDiag(await Lockdown.getBlockingDiagnostics());
+    } catch (e) {
+      setDiag({ serviceStartError: e?.message || String(e) });
+    } finally {
+      if (showSpinner) setDiagRefreshing(false);
+    }
+  };
+
   useEffect(() => {
     check();
-    const sub = AppState.addEventListener('change', (s) => s === 'active' && check());
+    checkDiagnostics(true);
+    const sub = AppState.addEventListener('change', (s) => {
+      if (s === 'active') {
+        check();
+        checkDiagnostics();
+      }
+    });
     return () => sub.remove();
   }, [refreshTick]);
 
@@ -64,6 +84,40 @@ export default function SettingsScreen({ refreshTick }) {
           ok={perms.notifications}
           onGrant={() => Lockdown?.openNotificationSettings()}
         />
+      </Card>
+
+      <SectionTitle>Blocking diagnostics</SectionTitle>
+      <Card style={{ gap: 10 }}>
+        <DiagValue
+          label="Background monitor"
+          value={serviceMonitorText(diag)}
+          danger={serviceStartFailed(diag) || serviceLooksDead(diag)}
+        />
+        <View style={styles.divider} />
+        <DiagValue
+          label="Detected foreground app"
+          value={detectedAppText(diag)}
+          danger={!!diag?.lastDetectionError || !!diag?.liveProbeError}
+        />
+        <View style={styles.divider} />
+        <DiagValue
+          label="Overlay result"
+          value={overlayText(diag)}
+          danger={!diag?.overlayVisible && !!diag?.overlayLastError}
+        />
+        {(diag?.serviceStartError || diag?.lastDetectionError || diag?.liveProbeError || diag?.overlayLastError) && (
+          <View style={styles.diagErrorBox}>
+            <Text style={styles.diagErrorLabel}>DETAIL</Text>
+            <Text style={styles.diagErrorText}>
+              {diag?.serviceStartError || diag?.lastDetectionError || diag?.liveProbeError || diag?.overlayLastError}
+            </Text>
+          </View>
+        )}
+        <TouchableOpacity activeOpacity={0.8} onPress={() => checkDiagnostics(true)} style={styles.diagnoseButton}>
+          <Ionicons name="refresh" size={16} color="#0B1020" />
+          <Text style={styles.diagnoseButtonText}>{diagRefreshing ? 'CHECKING…' : 'CHECK AGAIN'}</Text>
+        </TouchableOpacity>
+        <Text style={styles.diagHint}>Open a locked app once, come back here, then tap CHECK AGAIN. Screenshot this section if the block still fails.</Text>
       </Card>
 
       <SectionTitle>How locking works</SectionTitle>
@@ -131,6 +185,49 @@ function PermRow({ title, desc, ok, onGrant }) {
   );
 }
 
+function serviceStartFailed(diag) {
+  return !!diag?.serviceStartError;
+}
+
+function serviceLooksDead(diag) {
+  const age = Number(diag?.serviceAliveAgeSec ?? -1);
+  return Number(diag?.serviceStartedWall || 0) > 0 && age > 10;
+}
+
+function serviceMonitorText(diag) {
+  if (!diag) return 'Not checked yet';
+  if (diag.serviceStartError) return 'Failed to start';
+  const age = Number(diag.serviceAliveAgeSec ?? -1);
+  if (age >= 0 && age <= 10) return `Running — updated ${age}s ago`;
+  if (Number(diag.serviceStartedWall || 0) > 0) return 'Stopped or killed by Android';
+  return 'Not started yet';
+}
+
+function detectedAppText(diag) {
+  if (!diag) return 'Not checked yet';
+  if (diag.liveProbeError || diag.lastDetectionError) return 'Usage probe failed';
+  if (diag.liveProbePackage) return `${diag.liveProbePackage} · ${diag.liveProbeSource || 'live'}`;
+  if (diag.lastForeground) return `${diag.lastForeground} · ${diag.lastDetectionSource || 'monitor'}`;
+  return 'No foreground app detected';
+}
+
+function overlayText(diag) {
+  if (!diag) return 'Not checked yet';
+  if (diag.overlayVisible) return `Covering ${diag.overlayPackage || 'blocked app'}`;
+  if (diag.overlayLastError) return 'Android refused to draw';
+  if (Number(diag.overlayAddCount || 0) > 0) return 'Previously drawn; hidden now';
+  return 'Not shown yet';
+}
+
+function DiagValue({ label, value, danger }) {
+  return (
+    <View style={styles.diagRow}>
+      <Text style={styles.diagLabel}>{label}</Text>
+      <Text style={[styles.diagValue, danger && styles.diagValueDanger]}>{value}</Text>
+    </View>
+  );
+}
+
 function HowRow({ n, text }) {
   return (
     <View style={styles.howRow}>
@@ -166,6 +263,16 @@ const styles = StyleSheet.create({
   howText: { color: C.ink, fontSize: 13, lineHeight: 20, flex: 1 },
   fineRow: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
   fineText: { color: C.muted, fontSize: 12, lineHeight: 18, flex: 1 },
+  diagRow: { gap: 4 },
+  diagLabel: { color: C.muted, fontSize: 10, fontWeight: '800', letterSpacing: 0.8, textTransform: 'uppercase' },
+  diagValue: { color: C.ink, fontSize: 12, lineHeight: 17 },
+  diagValueDanger: { color: C.red },
+  diagErrorBox: { borderWidth: 1, borderColor: '#5A2525', backgroundColor: '#2A171C', borderRadius: 10, padding: 10, gap: 4 },
+  diagErrorLabel: { color: C.red, fontSize: 9, fontWeight: '900', letterSpacing: 1.2 },
+  diagErrorText: { color: '#FFB0B0', fontSize: 11, lineHeight: 16 },
+  diagnoseButton: { height: 40, borderRadius: 10, backgroundColor: C.amber, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },
+  diagnoseButtonText: { color: '#0B1020', fontSize: 11, fontWeight: '900', letterSpacing: 1 },
+  diagHint: { color: C.dim, fontSize: 10, lineHeight: 15 },
   aboutRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   aboutMark: { width: 46, height: 46, borderRadius: 12, backgroundColor: C.amber, alignItems: 'center', justifyContent: 'center' },
   madeMark: { borderRadius: 23, borderWidth: 1, borderColor: C.amber },

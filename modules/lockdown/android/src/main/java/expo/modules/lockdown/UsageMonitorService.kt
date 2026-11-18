@@ -5,8 +5,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.app.usage.UsageEvents
-import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -41,6 +39,7 @@ class UsageMonitorService : Service() {
   private var lastPkg: String? = null
   private var countdown: TextView? = null
   private var attempts: TextView? = null
+  private var lastDiagWriteMs = 0L
 
   private val tick = object : Runnable {
     override fun run() {
@@ -55,18 +54,26 @@ class UsageMonitorService : Service() {
         stopSelf()
         return
       }
-      val fg = currentForegroundPackage()
-      if (fg != null) lastPkg = fg
+      val detection = ForegroundProbe.detect(this@UsageMonitorService)
+      val fg = detection.packageName
+      when {
+        fg != null -> lastPkg = fg
+        detection.source == "events" -> lastPkg = null
+        detection.error != null -> Unit // fail closed: keep the last known app when the probe is broken
+      }
       val blocked = lastPkg != null && SessionStore.isBlocked(this@UsageMonitorService, lastPkg!!)
       if (blocked) showOverlay(lastPkg!!) else hideOverlay()
+      writeHeartbeat(detection, blocked)
       updateNotification()
       handler.postDelayed(this, INTERVAL_MS)
     }
   }
 
   companion object {
+    const val DIAGNOSTICS_PREFS = "lockdown_blocking_diagnostics"
     private const val CHANNEL_ID = "lockdown_monitor"
     private const val NOTIFICATION_ID = 9901
+    private const val DIAGNOSTICS_INTERVAL_MS = 2_000L
     private const val INTERVAL_MS = 800L
 
     fun start(ctx: Context) {
@@ -85,10 +92,24 @@ class UsageMonitorService : Service() {
     super.onCreate()
     wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
     createChannel()
+    writeDiagnostics(
+      mapOf(
+        "service_started_wall" to System.currentTimeMillis(),
+        "service_stopped_wall" to 0L,
+        "service_start_error" to null,
+        "overlay_visible" to false,
+        "overlay_package" to null,
+      ),
+    )
     try {
       startForeground(NOTIFICATION_ID, buildNotification())
     } catch (e: SecurityException) {
       // POST_NOTIFICATIONS denied (Android 13+) — can't run as foreground service, bail out
+      writeDiagnostics(mapOf("service_start_error" to e.message.orEmpty().take(180)))
+      stopSelf()
+      return
+    } catch (e: RuntimeException) {
+      writeDiagnostics(mapOf("service_start_error" to (e.message ?: e.javaClass.simpleName).take(180)))
       stopSelf()
       return
     }
@@ -106,47 +127,39 @@ class UsageMonitorService : Service() {
   override fun onDestroy() {
     handler.removeCallbacksAndMessages(null)
     hideOverlay()
+    writeDiagnostics(mapOf("service_stopped_wall" to System.currentTimeMillis(), "overlay_visible" to false))
     super.onDestroy()
   }
 
-  private fun currentForegroundPackage(): String? {
-    val usm = getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager ?: return null
+  private fun writeDiagnostics(values: Map<String, Any?>) {
+    val editor = getSharedPreferences(DIAGNOSTICS_PREFS, Context.MODE_PRIVATE).edit()
+    for ((key, value) in values) {
+      when (value) {
+        null -> editor.remove(key)
+        is Boolean -> editor.putBoolean(key, value)
+        is Int -> editor.putInt(key, value)
+        is Long -> editor.putLong(key, value)
+        is Float -> editor.putFloat(key, value)
+        is String -> editor.putString(key, value)
+      }
+    }
+    editor.apply()
+  }
+
+  private fun writeHeartbeat(detection: ForegroundProbe.Detection, blocked: Boolean) {
     val now = System.currentTimeMillis()
-    // Preferred: lastTimeUsed from usage stats — works even when the app is idle in the foreground
-    try {
-      val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_BEST, now - 300_000L, now)
-      var bestPkg: String? = null
-      var bestTs = 0L
-      for (s in stats) {
-        if (s.lastTimeUsed > bestTs) {
-          bestTs = s.lastTimeUsed
-          bestPkg = s.packageName
-        }
-      }
-      if (bestPkg != null) return bestPkg
-    } catch (e: SecurityException) {
-      return null
-    }
-    // Fallback: raw events (some OEMs only deliver these reliably)
-    try {
-      val events = usm.queryEvents(now - 5_000, now)
-      var newest: String? = null
-      var newestTs = 0L
-      val event = UsageEvents.Event()
-      while (events.hasNextEvent()) {
-        events.getNextEvent(event)
-        val type = event.eventType
-        if (type == UsageEvents.Event.ACTIVITY_RESUMED || type == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-          if (event.timeStamp >= newestTs) {
-            newestTs = event.timeStamp
-            newest = event.packageName
-          }
-        }
-      }
-      return newest
-    } catch (e: SecurityException) {
-      return null
-    }
+    if (now - lastDiagWriteMs < DIAGNOSTICS_INTERVAL_MS) return
+    lastDiagWriteMs = now
+    writeDiagnostics(
+      mapOf(
+        "service_alive_wall" to now,
+        "last_tick_wall" to now,
+        "last_detected_package" to detection.packageName,
+        "last_detected_source" to detection.source,
+        "last_detection_error" to detection.error?.take(180),
+        "last_decision" to if (blocked) "block" else "clear",
+      ),
+    )
   }
 
   // region overlay
@@ -155,6 +168,12 @@ class UsageMonitorService : Service() {
     val window = wm ?: return
     if (overlay != null && overlayPkg == pkg) {
       refreshOverlayContent()
+      writeDiagnostics(
+        mapOf(
+          "overlay_visible" to true,
+          "overlay_package" to pkg,
+        ),
+      )
       return
     }
     hideOverlay()
@@ -239,10 +258,39 @@ class UsageMonitorService : Service() {
 
     try {
       window.addView(scroll, params)
+      val addCount = getSharedPreferences(DIAGNOSTICS_PREFS, Context.MODE_PRIVATE).getInt("overlay_add_count", 0) + 1
       SessionStore.recordAttempt(this, pkg)
+      writeDiagnostics(
+        mapOf(
+          "overlay_visible" to true,
+          "overlay_package" to pkg,
+          "overlay_last_error" to null,
+          "overlay_add_count" to addCount,
+        ),
+      )
       refreshOverlayContent()
     } catch (e: SecurityException) {
-      // Overlay permission not granted — degrade silently to no overlay
+      val message = e.message ?: "Display-over-apps permission denied"
+      writeDiagnostics(
+        mapOf(
+          "overlay_visible" to false,
+          "overlay_package" to null,
+          "overlay_last_error" to message.take(180),
+          "overlay_last_error_wall" to System.currentTimeMillis(),
+        ),
+      )
+      hideOverlay()
+      return
+    } catch (e: RuntimeException) {
+      val message = e.message ?: e.javaClass.simpleName
+      writeDiagnostics(
+        mapOf(
+          "overlay_visible" to false,
+          "overlay_package" to null,
+          "overlay_last_error" to message.take(180),
+          "overlay_last_error_wall" to System.currentTimeMillis(),
+        ),
+      )
       hideOverlay()
       return
     }
@@ -261,6 +309,7 @@ class UsageMonitorService : Service() {
     overlayPkg = null
     countdown = null
     attempts = null
+    writeDiagnostics(mapOf("overlay_visible" to false, "overlay_package" to null))
   }
 
   private fun formatRemaining(): String {

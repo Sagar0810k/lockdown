@@ -101,7 +101,7 @@ Strict mode additionally adds `com.android.settings`, `com.android.vending` and 
 | **Focus** | Preset durations (15/25/45/60/90m) or custom, or "Until a time" mode, silence/strict toggles, streak badge, one-tap **START LOCKDOWN** |
 | **Apps** | Search, category filters (Social / Video / Games / Chat), select/clear, real app icons from the OS |
 | **Stats** | Minutes today / week, day streak, 14-day chart, temptation leaderboard, recent sessions with completion status |
-| **Setup** | Permission grants, how locking works, honest fine print |
+| **Setup** | Permission grants, blocking diagnostics, how locking works, honest fine print |
 
 ## Installation
 
@@ -114,6 +114,8 @@ The app is distributed as an installable APK via **GitHub Releases** (sideloaded
    adb install Lockdown-1.0.0.apk
    ```
 3. Open the app → **Setup** tab → grant the permissions (Usage access, Display over other apps, Do Not Disturb) → pick apps in **Apps** → **START LOCKDOWN**.
+4. On Realme/Oppo/Vivo/Xiaomi, explicitly allow Lockdown to run in the background: set Battery to **Unrestricted** (or “Don’t optimize”) and enable **Auto-launch / background activity**. These phones can suspend the monitor even when Android permissions are granted.
+5. If blocking still fails, on **Setup → Blocking diagnostics** tap **CHECK AGAIN** after opening a locked app. The screen shows whether the monitor is running, which foreground package it detected, and whether Android refused the overlay.
 
 First launch takes ~2 minutes. Everything is on-device — you don't sign in to anything.
 
@@ -173,7 +175,7 @@ See `lockdown-thinking.md` for the full design rationale, threat model and what 
 ## Honest limitations
 
 - **Not tamper-proof.** A determined user can disable usage access or the overlay in system settings — no ordinary app can prevent that without Device Owner. Lockdown is a commitment device, not a vault.
-- Some OEM battery savers (Xiaomi/Oppo/Vivo aggressive kill modes) may defer the exact end alarm; the session still restores on next boot/unlock.
+- Some OEM battery savers (Xiaomi/Oppo/Vivo/Realme aggressive kill modes) may defer the exact end alarm or suspend the monitor; add Lockdown to the "unrestricted" / "never kill" battery and auto-launch whitelist. The session itself restores on next boot/unlock.
 - Force-stopping the app from system settings freezes enforcement until it's restarted (the session itself re-arms on reboot).
 - 14-day stats chart is a view, not a data export — no accounts, no sync, nothing leaves the phone.
 - Backend bugs: the JS bridge fails soft — if the native module is missing (e.g. broken build), the UI renders and tells you plainly instead of crashing.
@@ -185,6 +187,7 @@ See `lockdown-thinking.md` for the full design rationale, threat model and what 
 | GRANT buttons do nothing / "build required" | You have the pre–`ee6b612` APK. It is missing its native module under R8 minification. Install the next build; see the warning at the top |
 | App list is empty in Apps tab | Launcher visibility query not granted or the phone has no launchable apps besides system ones; also check that usage access is enabled |
 | Session ends late | OEM battery saver; add Lockdown to your "never kill" / battery-usage whitelist |
+| DND works but app opens | Monitor is not seeing or not drawing. Check **Setup → Blocking diagnostics** (`CHECK AGAIN` after opening the blocked app), then whitelist Lockdown from battery optimization/auto-launch restrictions |
 | Phone rings during focus | DND access not granted, or the "Silence the phone" toggle is off |
 | Can't install APK | Enable "Install unknown apps" for your browser/file manager; verify the APK SHA against the one printed on the EAS builds page |
 

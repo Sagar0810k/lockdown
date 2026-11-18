@@ -107,6 +107,34 @@ class LockdownModule : Module() {
       android.provider.Settings.canDrawOverlays(ctx)
     }
 
+    AsyncFunction("getBlockingDiagnostics") {
+      val ctx = appContext.reactContext ?: return@AsyncFunction emptyMap<String, Any?>()
+      val diag = ctx.getSharedPreferences(UsageMonitorService.DIAGNOSTICS_PREFS, android.content.Context.MODE_PRIVATE)
+      val live = ForegroundProbe.detect(ctx)
+      val now = System.currentTimeMillis()
+      val aliveWall = diag.getLong("service_alive_wall", 0L)
+      mapOf(
+        "serviceAliveWall" to aliveWall,
+        "serviceAliveAgeSec" to if (aliveWall > 0L) ((now - aliveWall) / 1000L).coerceAtLeast(0L) else -1L,
+        "serviceStartedWall" to diag.getLong("service_started_wall", 0L),
+        "serviceStoppedWall" to diag.getLong("service_stopped_wall", 0L),
+        "serviceStartError" to diag.getString("service_start_error", null),
+        "lastTickWall" to diag.getLong("last_tick_wall", 0L),
+        "lastForeground" to diag.getString("last_detected_package", null),
+        "lastDetectionSource" to diag.getString("last_detected_source", null),
+        "lastDetectionError" to diag.getString("last_detection_error", null),
+        "lastDecision" to diag.getString("last_decision", null),
+        "liveProbePackage" to live.packageName,
+        "liveProbeSource" to live.source,
+        "liveProbeError" to live.error,
+        "overlayVisible" to diag.getBoolean("overlay_visible", false),
+        "overlayPackage" to diag.getString("overlay_package", null),
+        "overlayLastError" to diag.getString("overlay_last_error", null),
+        "overlayLastErrorWall" to diag.getLong("overlay_last_error_wall", 0L),
+        "overlayAddCount" to diag.getInt("overlay_add_count", 0),
+      )
+    }
+
     AsyncFunction("areNotificationsEnabled") {
       val ctx = appContext.reactContext
         ?: return@AsyncFunction false
