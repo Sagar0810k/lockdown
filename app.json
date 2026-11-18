@@ -3,6 +3,9 @@
     "name": "Lockdown",
     "slug": "lockdown",
     "owner": "sagar0810k",
+    "plugins": [
+      "./plugins/withLightApk.js"
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
