@@ -2,6 +2,8 @@
 
 **Lock your distracting apps behind a countdown. Keep the phone silent. Finish the chapter.**
 
+> ⚠️ **Known issue with the currently distributed APK (build `0850cdb2`, pre–Nov 18 fix):** the release build strips the native module classes (`ExpoModulesPackageList` and `expo.modules.lockdown.*`) because R8 removed reflectively-loaded classes that had no keep rules. Symptom: the app UI opens fine, but the **Setup tab's GRANT buttons do nothing** and **START LOCKDOWN** does not work (it warns "build required"). The fix is committed (`ee6b612`, `plugins/withLockdownKeepRules.js`) and will be included in the next Android build. In the meantime, locally-built debug APKs are unaffected (debug builds are not minified).
+
 Lockdown is an Android app for focused study sessions. You pick which apps get blocked (social, games, video — anything that steals focus), pick how long, and the phone goes quiet. Until time is up, opening a blocked app slams a full-screen lock with a countdown in front of it — no fighting your willpower with pure willpower.
 
 It is **not** an internet blocker and it does **not** try to control your phone. It locks *your own chosen apps* and restores everything automatically when the session ends.
@@ -13,6 +15,8 @@ It is **not** an internet blocker and it does **not** try to control your phone.
 - **EAS build page (latest build):** https://expo.dev/accounts/sagar0810k/projects/lockdown/builds
 - Direct APK: `eas build -p android --profile preview` produces a `.apk` you can install from a download link or transfer directly (`adb install lockdown.apk`).
 - Project: https://expo.dev/accounts/sagar0810k/projects/lockdown
+
+> Quota note: the free plan includes 15 Android builds per month. When the quota is exhausted, local debug builds (`npx expo run:android`, requires Android SDK + JDK 17) are free and are not affected by the release minification issue described above.
 
 > The first build may take a while in Expo's free-tier queue; once finished, the builds page shows a downloadable APK artifact.
 
