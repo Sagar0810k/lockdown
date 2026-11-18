@@ -112,26 +112,41 @@ class UsageMonitorService : Service() {
   private fun currentForegroundPackage(): String? {
     val usm = getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager ?: return null
     val now = System.currentTimeMillis()
-    val events = try {
-      usm.queryEvents(now - 2_000, now)
+    // Preferred: lastTimeUsed from usage stats — works even when the app is idle in the foreground
+    try {
+      val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_BEST, now - 300_000L, now)
+      var bestPkg: String? = null
+      var bestTs = 0L
+      for (s in stats) {
+        if (s.lastTimeUsed > bestTs) {
+          bestTs = s.lastTimeUsed
+          bestPkg = s.packageName
+        }
+      }
+      if (bestPkg != null) return bestPkg
     } catch (e: SecurityException) {
       return null
     }
-    var newest: String? = null
-    var newestTs = 0L
-    val event = UsageEvents.Event()
-    while (events.hasNextEvent()) {
-      events.getNextEvent(event)
-      val type = event.eventType
-      // ACTIVITY_RESUMED / MOVE_TO_FOREGROUND — whatever OEM reports as "app opened"
-      if (type == UsageEvents.Event.ACTIVITY_RESUMED || type == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-        if (event.timeStamp >= newestTs) {
-          newestTs = event.timeStamp
-          newest = event.packageName
+    // Fallback: raw events (some OEMs only deliver these reliably)
+    try {
+      val events = usm.queryEvents(now - 5_000, now)
+      var newest: String? = null
+      var newestTs = 0L
+      val event = UsageEvents.Event()
+      while (events.hasNextEvent()) {
+        events.getNextEvent(event)
+        val type = event.eventType
+        if (type == UsageEvents.Event.ACTIVITY_RESUMED || type == UsageEvents.Event.MOVE_TO_FOREGROUND) {
+          if (event.timeStamp >= newestTs) {
+            newestTs = event.timeStamp
+            newest = event.packageName
+          }
         }
       }
+      return newest
+    } catch (e: SecurityException) {
+      return null
     }
-    return newest
   }
 
   // region overlay
@@ -218,7 +233,7 @@ class UsageMonitorService : Service() {
       WindowManager.LayoutParams.MATCH_PARENT,
       WindowManager.LayoutParams.MATCH_PARENT,
       overlayType,
-      WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or WindowManager.LayoutParams.FLAG_FULLSCREEN or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+      WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or WindowManager.LayoutParams.FLAG_FULLSCREEN,
       PixelFormat.TRANSLUCENT
     ).apply { gravity = Gravity.CENTER }
 
