@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lockdown — README mockups</title>
+<style>
+  :root {
+    --bg:#0B1020; --surface:#141B34; --surface2:#1B2340; --border:#232B4A;
+    --amber:#F5B942; --amber-soft:#3A2E12; --amber-dim:#5A4A1A;
+    --ink:#E7EAF5; --muted:#8A93B2; --dim:#5B6488; --red:#FF6B6B; --green:#34D399;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-font-smoothing:antialiased; }
+  body { background:#060a18; display:flex; flex-direction:column; align-items:center; gap:60px; padding:60px 20px 80px; font-family:'Segoe UI Variable Display','Segoe UI',system-ui,-apple-system,sans-serif; }
+
+  .phone { width:388px; height:800px; background:var(--bg); border-radius:40px; border:1px solid #2a3358; box-shadow:0 40px 80px rgba(0,0,0,.6), inset 0 0 0 6px #0e1430; overflow:hidden; display:flex; flex-direction:column; position:relative; }
+  .notch { position:absolute; top:12px; left:50%; transform:translateX(-50%); width:120px; height:22px; background:#060a18; border-radius:14px; z-index:5; }
+  .status { height:40px; flex:0 0 40px; display:flex; align-items:center; justify-content:space-between; padding:10px 26px 0; color:var(--ink); font-size:13px; font-weight:700; }
+  .status .right { display:flex; align-items:center; gap:6px; }
+  .body { flex:1; overflow:hidden; padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
+  .tabbar { flex:0 0 58px; border-top:1px solid var(--border); background:var(--surface); display:flex; }
+  .tab { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; color:var(--dim); font-size:10px; font-weight:700; }
+  .tab.on { color:var(--amber); }
+  .tab svg { fill:currentColor; }
+
+  .brandRow { display:flex; align-items:center; gap:12px; margin-top:2px; }
+  .brandMark { width:42px; height:42px; border-radius:12px; background:var(--amber); display:flex; align-items:center; justify-content:center; }
+  .brand { color:var(--ink); font-size:28px; font-weight:800; flex:1; letter-spacing:.3px; }
+  .streak { display:flex; align-items:center; gap:5px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:6px 12px; color:var(--amber); font-weight:800; font-size:13px; }
+  .tagline { color:var(--muted); font-size:13px; margin-top:-6px; }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px; }
+  .statRow { display:flex; align-items:center; padding:16px; }
+  .statCol { flex:1; text-align:center; }
+  .statVal { color:var(--amber); font-size:24px; font-weight:800; }
+  .statLab { color:var(--muted); font-size:11px; margin-top:2px; }
+  .divider { width:1px; height:36px; background:var(--border); }
+
+  .sect { color:var(--muted); font-size:11px; letter-spacing:1.8px; font-weight:700; padding:0 2px; }
+  .modeTabs { display:flex; background:var(--surface2); border-radius:12px; padding:4px; margin-bottom:14px; }
+  .modeTab { flex:1; text-align:center; padding:9px 0; border-radius:9px; color:var(--muted); font-size:13px; font-weight:800; }
+  .modeTab.on { background:var(--amber); color:#0B1020; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { border:1px solid var(--border); background:var(--surface2); color:var(--ink); font-weight:700; font-size:14px; border-radius:999px; padding:9px 17px; }
+  .chip.on { background:var(--amber); border-color:var(--amber); color:#0B1020; }
+  .customRow { margin-top:14px; border-top:1px solid var(--border); padding-top:12px; display:flex; align-items:center; justify-content:space-between; }
+  .customLab { color:var(--muted); font-size:14px; font-weight:600; }
+  .stepper { display:flex; align-items:center; gap:14px; }
+  .stepBtn { width:34px; height:34px; border-radius:10px; border:1px solid var(--border); background:var(--surface2); display:flex; align-items:center; justify-content:center; color:var(--amber); font-size:18px; font-weight:800; }
+  .stepVal { color:var(--ink); font-size:20px; font-weight:800; min-width:64px; text-align:center; }
+  .stepVal small { color:var(--muted); font-size:12px; font-weight:600; }
+
+  .toggleRow { display:flex; align-items:center; gap:12px; padding:10px 0; }
+  .toggleRow + .toggleRow { border-top:1px solid var(--border); }
+  .tIcon { width:40px; height:40px; border-radius:10px; background:var(--surface2); display:flex; align-items:center; justify-content:center; }
+  .tTitle { color:var(--ink); font-weight:700; font-size:15px; }
+  .tDesc { color:var(--muted); font-size:11px; margin-top:2px; max-width:210px; line-height:1.35; }
+  .switch { width:44px; height:26px; border-radius:14px; background:var(--amber-soft); position:relative; flex:0 0 44px; }
+  .switch::after { content:''; position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%; background:var(--amber); }
+  .switch.off { background:var(--surface2); }
+  .switch.off::after { right:auto; left:3px; background:var(--muted); }
+
+  .blockedCard { display:flex; align-items:center; gap:14px; }
+  .bIcon { width:48px; height:48px; border-radius:12px; background:var(--surface2); display:flex; align-items:center; justify-content:center; }
+  .bTitle { color:var(--ink); font-weight:800; font-size:16px; }
+  .bSub { color:var(--muted); font-size:12px; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:225px; }
+  .chev { margin-left:auto; color:var(--muted); }
+
+  .cta { margin-top:4px; height:62px; border-radius:18px; background:var(--amber); display:flex; align-items:center; justify-content:center; gap:12px; color:#0B1020; font-size:19px; font-weight:900; letter-spacing:2px; }
+  .ctaNote { color:var(--dim); text-align:center; font-size:11px; margin-top:-2px; }
+
+  .searchBox { display:flex; align-items:center; gap:9px; background:var(--surface); border:1px solid var(--border); border-radius:16px; height:48px; padding:0 13px; color:var(--muted); font-size:15px; }
+  .selRow { display:flex; align-items:center; justify-content:space-between; padding:2px 4px; }
+  .selText { color:var(--muted); font-size:13px; }
+  .selText b { color:var(--amber); }
+  .link { color:var(--amber); font-size:13px; font-weight:700; }
+  .link.red { color:var(--red); }
+  .appList { flex:1; display:flex; flex-direction:column; gap:2px; }
+  .appRow { display:flex; align-items:center; gap:12px; padding:9px 8px; border-radius:16px; }
+  .avatar { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--ink); font-weight:800; font-size:19px; }
+  .aName { color:var(--ink); font-weight:700; font-size:15px; }
+  .aPkg { color:var(--muted); font-size:11px; margin-top:1px; }
+  .checkOn { width:26px; height:26px; border-radius:50%; background:var(--amber); display:flex; align-items:center; justify-content:center; margin-left:auto; }
+  .checkOff { width:26px; height:26px; border-radius:50%; border:2px solid var(--dim); margin-left:auto; }
+
+  .sessionRoot { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; padding:0 18px 18px; }
+  .focusTag { color:var(--amber); font-size:13px; font-weight:900; letter-spacing:6px; }
+  .ring { width:216px; height:216px; border-radius:50%; border:11px solid var(--amber); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .time { color:var(--amber); font-size:52px; font-weight:900; font-variant-numeric:tabular-nums; }
+  .ringLab { color:var(--muted); font-size:10px; letter-spacing:3px; font-weight:700; margin-top:2px; }
+  .attempts { font-size:17px; }
+  .attempts b { color:var(--red); font-weight:900; }
+  .attempts span { color:var(--muted); }
+  .miniChips { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .miniChip { display:flex; align-items:center; gap:6px; border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:6px 12px; color:var(--ink); font-size:12px; font-weight:600; }
+  .lockBtn { width:100%; height:58px; border-radius:16px; background:var(--amber); display:flex; align-items:center; justify-content:center; gap:10px; color:#0B1020; font-weight:900; font-size:13px; letter-spacing:1px; }
+  .holdBtn { width:100%; height:56px; border-radius:16px; border:1px solid var(--red); background:#241018; display:flex; align-items:center; justify-content:center; color:var(--red); font-weight:800; font-size:13px; letter-spacing:1.2px; }
+  .warn { color:var(--dim); font-size:11px; }
+
+  .pageTitle { color:var(--ink); font-size:30px; font-weight:900; margin-top:4px; }
+  .grid { display:flex; gap:10px; flex-wrap:wrap; }
+  .statCard { flex:1 1 42%; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px 15px; }
+  .statCard .v { color:var(--ink); font-size:26px; font-weight:900; margin:6px 0 2px; }
+  .statCard .l { color:var(--muted); font-size:12px; }
+  .chart { display:flex; align-items:flex-end; gap:4px; height:120px; padding-top:6px; }
+  .barCol { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; height:100%; }
+  .barTrack { flex:1; width:100%; background:var(--surface2); border-radius:6px; display:flex; align-items:flex-end; overflow:hidden; }
+  .barFill { width:100%; background:var(--amber); border-radius:6px; }
+  .barLab { color:var(--muted); font-size:9px; font-weight:700; }
+  .temptRow { display:flex; align-items:center; gap:10px; }
+  .temptPkg { width:130px; color:var(--ink); font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .temptTrack { flex:1; height:8px; background:var(--surface2); border-radius:4px; overflow:hidden; }
+  .temptFill { height:8px; background:var(--red); opacity:.75; border-radius:4px; }
+  .temptN { color:var(--muted); font-weight:800; font-size:12px; width:24px; text-align:right; }
+  .sessRow { display:flex; align-items:center; padding:11px 0; border-bottom:1px solid var(--border); }
+  .sessRow:last-child { border-bottom:none; }
+  .sessDate { color:var(--ink); font-weight:700; font-size:14px; }
+  .sessMeta { color:var(--muted); font-size:12px; margin-top:2px; }
+  .pill { border:1px solid var(--green); color:var(--green); font-size:11px; font-weight:800; border-radius:999px; padding:5px 12px; }
+  .pill.amber { border-color:var(--amber); color:var(--amber); }
+
+  .permRow { display:flex; align-items:center; gap:12px; padding:11px 0; }
+  .permRow + .permRow { border-top:1px solid var(--border); }
+  .dot { width:10px; height:10px; border-radius:50%; background:var(--green); flex:0 0 10px; }
+  .permTitle { color:var(--ink); font-weight:800; font-size:15px; }
+  .permDesc { color:var(--muted); font-size:12px; margin-top:3px; line-height:1.4; }
+  .okBadge { border:1px solid var(--green); color:var(--green); font-size:11px; font-weight:900; border-radius:8px; padding:5px 12px; letter-spacing:1px; margin-left:auto; }
+  .howRow { display:flex; gap:12px; align-items:flex-start; }
+  .howNum { width:24px; height:24px; border-radius:12px; background:var(--surface2); color:var(--amber); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:0 0 24px; }
+  .howText { color:var(--ink); font-size:13px; line-height:1.5; }
+  .fineRow { display:flex; gap:8px; align-items:flex-start; }
+  .fineText { color:var(--muted); font-size:12px; line-height:1.55; }
+
+  .hero { width:1580px; height:520px; border-radius:28px; background:radial-gradient(1000px 500px at 18% 50%, #1a2348 0%, #0B1020 55%); border:1px solid #263055; display:flex; align-items:center; padding:0 90px; gap:80px; position:relative; overflow:hidden; }
+  .heroGlow { position:absolute; right:-140px; top:-200px; width:640px; height:640px; border-radius:50%; background:radial-gradient(circle, rgba(245,185,66,.16) 0%, transparent 65%); }
+  .heroLock { width:190px; height:190px; border-radius:44px; background:var(--amber); display:flex; align-items:center; justify-content:center; box-shadow:0 30px 60px rgba(245,185,66,.28); flex:0 0 190px; }
+  .heroWord { color:var(--ink); font-size:96px; font-weight:900; letter-spacing:.5px; line-height:1; }
+  .heroTag { color:var(--ink); font-size:30px; font-weight:600; margin-top:18px; }
+  .heroAmber { color:var(--amber); }
+  .heroSub { color:var(--muted); font-size:19px; margin-top:22px; line-height:1.45; max-width:640px; }
+  .heroPill { display:inline-block; border:1px solid var(--amber-dim); background:var(--amber-soft); color:var(--amber); font-size:14px; font-weight:800; letter-spacing:1.5px; border-radius:999px; padding:9px 20px; margin-top:28px; }
+  .caption { color:var(--dim); font-size:13px; font-weight:600; letter-spacing:.4px; }
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<div class="hero" id="hero">
+  <div class="heroGlow"></div>
+  <div class="heroLock" id="heroLock"></div>
+  <div>
+    <div class="heroWord">Lock<span class="heroAmber">down</span></div>
+    <div class="heroTag">Silence the noise.<br/><span class="heroAmber">Finish the chapter.</span></div>
+    <div class="heroSub">An Android focus-lock app. Pick your distracting apps, pick a duration — the phone goes quiet, and blocked apps open into a countdown lock screen instead.</div>
+    <div class="heroPill">FOCUS STUDY MODE · ANDROID</div>
+  </div>
+</div>
+<div class="caption">hero.png</div>
+
+<!-- ============ SCREEN 1: FOCUS ============ -->
+<div class="phone" id="shot-focus">
+  <div class="notch"></div>
+  <div class="status"><span>9:41</span><span class="right"><svg width="17" height="12" viewBox="0 0 17 12" fill="#E7EAF5"><path d="M1 7h3v4H1zM6 4.5h3V11H6zM11 2h3v9h-3zM16 0h1v11h-1z" opacity=".95"/></svg><span style="font-size:12px">▮</span></span></div>
+  <div class="body">
+    <div class="brandRow">
+      <div class="brandMark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#0B1020"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg>
+      </div>
+      <div class="brand">Lockdown</div>
+      <div class="streak"><svg width="14" height="14" viewBox="0 0 24 24" fill="#F5B942"><path d="M12 23c-4.4 0-7-2.8-7-7 0-2.6 1.2-4.7 2.6-6.4.9 1.3 2.1 2 3.4 2C10 8.5 10.5 5.6 13 2c.6 3 1.8 5 3.4 7.2 1 1.4 1.6 3 1.6 4.8 0 5-2.6 9-6 9z"/></svg>6</div>
+    </div>
+    <div class="tagline">Silence the noise. Finish the chapter.</div>
+
+    <div class="card statRow">
+      <div class="statCol"><div class="statVal">42</div><div class="statLab">min today</div></div>
+      <div class="divider"></div>
+      <div class="statCol"><div class="statVal">3</div><div class="statLab">temptations</div></div>
+      <div class="divider"></div>
+      <div class="statCol"><div class="statVal">6</div><div class="statLab">day streak</div></div>
+    </div>
+
+    <div class="sect">FOCUS FOR</div>
+    <div class="card">
+      <div class="modeTabs"><div class="modeTab on">Duration</div><div class="modeTab">Until a time</div></div>
+      <div class="chips"><div class="chip">15m</div><div class="chip">25m</div><div class="chip on">45m</div><div class="chip">60m</div><div class="chip">90m</div></div>
+      <div class="customRow"><div class="customLab">Custom</div><div class="stepper"><div class="stepBtn">−</div><div class="stepVal">45<small> min</small></div><div class="stepBtn">+</div></div></div>
+    </div>
+
+    <div class="sect">DURING THE SESSION</div>
+    <div class="card" style="padding-top:6px;padding-bottom:6px">
+      <div class="toggleRow"><div class="tIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="#F5B942"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1c2.9.9 5 3.7 5 6.7s-2.1 5.8-5 6.7v2.1c4-.9 7-4.6 7-8.8s-3-7.9-7-8.8z"/></svg></div><div style="flex:1"><div class="tTitle">Silence the phone</div><div class="tDesc">Do Not Disturb on, ringtone off — restored when time ends</div></div><div class="switch"></div></div>
+      <div class="toggleRow"><div class="tIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="#F5B942"><path d="M12 2l8 3.5v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11v-6L12 2z"/></svg></div><div style="flex:1"><div class="tTitle">Strict mode</div><div class="tDesc">No early quit · blocks Settings &amp; Play Store while locked</div></div><div class="switch off"></div></div>
+    </div>
+
+    <div class="sect">APPS LOCKED</div>
+    <div class="card blockedCard">
+      <div class="bIcon"><svg width="22" height="22" viewBox="0 0 24 24" fill="#F5B942"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></div>
+      <div style="flex:1;min-width:0"><div class="bTitle">2 apps will be locked</div><div class="bSub">Instagram, YouTube</div></div>
+      <svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A93B2" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+
+    <div class="cta"><svg width="24" height="24" viewBox="0 0 24 24" fill="#0B1020"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg>START LOCKDOWN</div>
+    <div class="ctaNote">Calls and your dialer always work. Ending early is always possible.</div>
+  </div>
+  <div class="tabbar">
+    <div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h4v8z"/></svg>Focus</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>Apps</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/></svg>Stats</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 .0 8.001A4 4 0 0 0 12 8zm8.7 4l1.8 1.4a.9.9 0 0 1 .35 1.13l-2 4.9a.9.9 0 0 1-1.13.6l-2.13-.52a7.6 7.6 0 0 1-1 .65l-.6 2.24a.9.9 0 0 1-.88.67h-6a.9.9 0 0 1-.88-.67l-.6-2.24a7.6 7.6 0 0 1-1-.65l-2.13.52a.9.9 0 0 1-1.13-.6l-2-4.9a.9.9 0 0 1 .35-1.13L3.3 12a7.3 7.3 0 0 1 0-1.4l-2.2-1.4a.9.9 0 0 1-.35-1.13l2-4.9a.9.9 0 0 1 1.13-.6l2.13.52a7.6 7.6 0 0 1 1-.65l.6-2.24a.9.9 0 0 1 .88-.67h6a.9.9 0 0 1 .88.67l.6 2.24a7.6 7.6 0 0 1 1 .65l2.13-.52a.9.9 0 0 1 1.13.6l2 4.9a.9.9 0 0 1-.35 1.13L20.7 11c.3.45.3.55 0 1z"/></svg>Setup</div>
+  </div>
+</div>
+<div class="caption">focus.png — Focus tab: pick a duration, flip Strict mode, start.</div>
+
+<!-- ============ SCREEN 2: APPS ============ -->
+<div class="phone" id="shot-apps">
+  <div class="notch"></div>
+  <div class="status"><span>9:41</span><span class="right"><svg width="17" height="12" viewBox="0 0 17 12" fill="#E7EAF5"><path d="M1 7h3v4H1zM6 4.5h3V11H6zM11 2h3v9h-3zM16 0h1v11h-1z"/></svg><span style="font-size:12px">▮</span></span></div>
+  <div class="body">
+    <div class="searchBox"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A93B2" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Search apps…</div>
+    <div class="selRow"><div class="selText"><b>2</b> locked</div><div style="display:flex;gap:14px"><span class="link">Select visible</span><span class="link red">Clear</span></div></div>
+    <div class="chips" style="padding:4px 2px 6px"><div class="chip">All</div><div class="chip on">Social</div><div class="chip">Video</div><div class="chip">Games</div><div class="chip">Chat</div></div>
+    <div class="appList">
+      <div class="appRow"><div class="avatar" style="background:#3b1f4e;border:1px solid #7c3fb8">I</div><div style="min-width:0"><div class="aName">Instagram</div><div class="aPkg">com.instagram.android</div></div><div class="checkOn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#0B1020"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg></div></div>
+      <div class="appRow"><div class="avatar" style="background:#3d2b12;border:1px solid #a8552e">Y</div><div style="min-width:0"><div class="aName">YouTube</div><div class="aPkg">com.google.android.youtube</div></div><div class="checkOn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#0B1020"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg></div></div>
+      <div class="appRow"><div class="avatar" style="background:#123b46;border:1px solid #2f88a3">R</div><div style="min-width:0"><div class="aName">Reddit</div><div class="aPkg">com.reddit.frontpage</div></div><div class="checkOff"></div></div>
+      <div class="appRow"><div class="avatar" style="background:#123b46;border:1px solid #2f88a3">T</div><div style="min-width:0"><div class="aName">Threads</div><div class="aPkg">com.instagram.barcelona</div></div><div class="checkOff"></div></div>
+      <div class="appRow"><div class="avatar" style="background:#2e1238;border:1px solid #8a3fb0">S</div><div style="min-width:0"><div class="aName">Snapchat</div><div class="aPkg">com.snapchat.android</div></div><div class="checkOff"></div></div>
+      <div class="appRow"><div class="avatar" style="background:#122a3b;border:1px solid #2e6b9e">X</div><div style="min-width:0"><div class="aName">X (Twitter)</div><div class="aPkg">com.twitter.android</div></div><div class="checkOff"></div></div>
+      <div class="appRow"><div class="avatar" style="background:#2b1238;border:1px solid #7c3fb8">P</div><div style="min-width:0"><div class="aName">Pinterest</div><div class="aPkg">com.pinterest</div></div><div class="checkOff"></div></div>
+      <div class="appRow"><div class="avatar" style="background:#3b2a12;border:1px solid #a87a2e">L</div><div style="min-width:0"><div class="aName">LinkedIn</div><div class="aPkg">com.linkedin.android</div></div><div class="checkOff"></div></div>
+    </div>
+  </div>
+  <div class="tabbar">
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h4v8z"/></svg>Focus</div>
+    <div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>Apps</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/></svg>Stats</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 .0 8.001A4 4 0 0 0 12 8zm8.7 4l1.8 1.4a.9.9 0 0 1 .35 1.13l-2 4.9a.9.9 0 0 1-1.13.6l-2.13-.52a7.6 7.6 0 0 1-1 .65l-.6 2.24a.9.9 0 0 1-.88.67h-6a.9.9 0 0 1-.88-.67l-.6-2.24a7.6 7.6 0 0 1-1-.65l-2.13.52a.9.9 0 0 1-1.13-.6l-2-4.9a.9.9 0 0 1 .35-1.13L3.3 12a7.3 7.3 0 0 1 0-1.4l-2.2-1.4a.9.9 0 0 1-.35-1.13l2-4.9a.9.9 0 0 1 1.13-.6l2.13.52a7.6 7.6 0 0 1 1-.65l.6-2.24a.9.9 0 0 1 .88-.67h6a.9.9 0 0 1 .88.67l.6 2.24a7.6 7.6 0 0 1 1 .65l2.13-.52a.9.9 0 0 1 1.13.6l2 4.9a.9.9 0 0 1-.35 1.13L20.7 11c.3.45.3.55 0 1z"/></svg>Setup</div>
+  </div>
+</div>
+<div class="caption">apps.png — Apps tab: search, category filters, one tap to lock.</div>
+
+<!-- ============ SCREEN 3: SESSION ============ -->
+<div class="phone" id="shot-session">
+  <div class="notch"></div>
+  <div class="status"><span>9:41</span><span class="right"><svg width="17" height="12" viewBox="0 0 17 12" fill="#E7EAF5"><path d="M1 7h3v4H1zM6 4.5h3V11H6zM11 2h3v9h-3zM16 0h1v11h-1z"/></svg><span style="font-size:12px">▮</span></span></div>
+  <div class="body sessionRoot">
+    <div class="focusTag">FOCUS LOCK</div>
+    <div class="ring"><div class="time">34:18</div><div class="ringLab">REMAINING</div></div>
+    <div class="attempts"><b>3</b> <span>temptations resisted</span></div>
+    <div class="miniChips">
+      <div class="miniChip"><svg width="11" height="11" viewBox="0 0 24 24" fill="#F5B942"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"/></svg>Instagram</div>
+      <div class="miniChip"><svg width="11" height="11" viewBox="0 0 24 24" fill="#F5B942"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"/></svg>YouTube</div>
+    </div>
+    <div class="lockBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="#0B1020"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h4v8z"/></svg>BACK TO HOME — PHONE STAYS LOCKED</div>
+    <div class="holdBtn">HOLD 3s TO END SESSION</div>
+    <div class="warn">Ending early is logged to your streak</div>
+  </div>
+</div>
+<div class="caption">session.png — In-session takeover; phone stays locked.</div>
+
+<!-- ============ SCREEN 4: STATS ============ -->
+<div class="phone" id="shot-stats">
+  <div class="notch"></div>
+  <div class="status"><span>9:41</span><span class="right"><svg width="17" height="12" viewBox="0 0 17 12" fill="#E7EAF5"><path d="M1 7h3v4H1zM6 4.5h3V11H6zM11 2h3v9h-3zM16 0h1v11h-1z"/></svg><span style="font-size:12px">▮</span></span></div>
+  <div class="body">
+    <div class="pageTitle">Your focus</div>
+    <div class="grid">
+      <div class="statCard"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div class="v">42</div><div class="l">minutes today</div></div>
+      <div class="statCard"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><div class="v">187</div><div class="l">this week</div></div>
+      <div class="statCard"><svg width="17" height="17" viewBox="0 0 24 24" fill="#F5B942"><path d="M12 23c-4.4 0-7-2.8-7-7 0-2.6 1.2-4.7 2.6-6.4.9 1.3 2.1 2 3.4 2C10 8.5 10.5 5.6 13 2c.6 3 1.8 5 3.4 7.2 1 1.4 1.6 3 1.6 4.8 0 5-2.6 9-6 9z"/></svg><div class="v">6</div><div class="l">day streak</div></div>
+      <div class="statCard"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linejoin="round"><path d="M12 2l8 3.5v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11v-6L12 2z"/></svg><div class="v">23</div><div class="l">temptations resisted</div></div>
+    </div>
+    <div class="sect">LAST 14 DAYS</div>
+    <div class="card"><div class="chart" id="chart"></div></div>
+    <div class="sect">MOST TEMPTING APPS</div>
+    <div class="card" style="display:flex;flex-direction:column;gap:11px">
+      <div class="temptRow"><div class="temptPkg">com.instagram.android</div><div class="temptTrack"><div class="temptFill" style="width:100%"></div></div><div class="temptN">9</div></div>
+      <div class="temptRow"><div class="temptPkg">com.google.android.youtube</div><div class="temptTrack"><div class="temptFill" style="width:88%"></div></div><div class="temptN">8</div></div>
+      <div class="temptRow"><div class="temptPkg">com.whatsapp</div><div class="temptTrack"><div class="temptFill" style="width:66%"></div></div><div class="temptN">6</div></div>
+    </div>
+    <div class="sect">RECENT SESSIONS</div>
+    <div class="card">
+      <div class="sessRow"><div style="flex:1"><div class="sessDate">Today · 2:15 PM</div><div class="sessMeta">42 min · 3 temptations</div></div><div class="pill">Completed</div></div>
+      <div class="sessRow"><div style="flex:1"><div class="sessDate">Yesterday · 9:40 PM</div><div class="sessMeta">30 min · 5 temptations</div></div><div class="pill amber">Quit early</div></div>
+    </div>
+  </div>
+  <div class="tabbar">
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h4v8z"/></svg>Focus</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>Apps</div>
+    <div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/></svg>Stats</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 .0 8.001A4 4 0 0 0 12 8zm8.7 4l1.8 1.4a.9.9 0 0 1 .35 1.13l-2 4.9a.9.9 0 0 1-1.13.6l-2.13-.52a7.6 7.6 0 0 1-1 .65l-.6 2.24a.9.9 0 0 1-.88.67h-6a.9.9 0 0 1-.88-.67l-.6-2.24a7.6 7.6 0 0 1-1-.65l-2.13.52a.9.9 0 0 1-1.13-.6l-2-4.9a.9.9 0 0 1 .35-1.13L3.3 12a7.3 7.3 0 0 1 0-1.4l-2.2-1.4a.9.9 0 0 1-.35-1.13l2-4.9a.9.9 0 0 1 1.13-.6l2.13.52a7.6 7.6 0 0 1 1-.65l.6-2.24a.9.9 0 0 1 .88-.67h6a.9.9 0 0 1 .88.67l.6 2.24a7.6 7.6 0 0 1 1 .65l2.13-.52a.9.9 0 0 1 1.13.6l2 4.9a.9.9 0 0 1-.35 1.13L20.7 11c.3.45.3.55 0 1z"/></svg>Setup</div>
+  </div>
+</div>
+<div class="caption">stats.png — Stats: streak, minutes, temptation leaderboard.</div>
+
+<!-- ============ SCREEN 5: SETUP ============ -->
+<div class="phone" id="shot-setup">
+  <div class="notch"></div>
+  <div class="status"><span>9:41</span><span class="right"><svg width="17" height="12" viewBox="0 0 17 12" fill="#E7EAF5"><path d="M1 7h3v4H1zM6 4.5h3V11H6zM11 2h3v9h-3zM16 0h1v11h-1z"/></svg><span style="font-size:12px">▮</span></span></div>
+  <div class="body">
+    <div class="pageTitle">Setup</div>
+    <div class="sect">PERMISSIONS</div>
+    <div class="card" style="padding:8px 14px">
+      <div class="permRow"><div class="dot"></div><div style="flex:1;min-width:0"><div class="permTitle">Accessibility access</div><div class="permDesc">See which app is foreground; never reads your screen content</div></div><div class="okBadge">ON</div></div>
+      <div class="permRow"><div class="dot"></div><div style="flex:1;min-width:0"><div class="permTitle">Do Not Disturb access</div><div class="permDesc">Silence calls &amp; notifications; restored when the session ends</div></div><div class="okBadge">ON</div></div>
+      <div class="permRow"><div class="dot"></div><div style="flex:1;min-width:0"><div class="permTitle">Notifications</div><div class="permDesc">One quiet note when a session completes — nothing else</div></div><div class="okBadge">ON</div></div>
+    </div>
+
+    <div class="sect">HOW LOCKING WORKS</div>
+    <div class="card" style="display:flex;flex-direction:column;gap:12px">
+      <div class="howRow"><div class="howNum">1</div><div class="howText">You pick the distracting apps and a duration — or a “block until” time.</div></div>
+      <div class="howRow"><div class="howNum">2</div><div class="howText">Phone goes silent via Do Not Disturb. Blocked apps open into a full-screen lock with a countdown.</div></div>
+      <div class="howRow"><div class="howNum">3</div><div class="howText">When time is up, everything is restored automatically — even if you rebooted mid-session.</div></div>
+    </div>
+
+    <div class="sect">HONEST FINE PRINT</div>
+    <div class="card" style="display:flex;flex-direction:column;gap:9px">
+      <div class="fineRow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12v4M12 8h.01"/></svg><div class="fineText"><b style="color:var(--ink)">Emergency:</b> Phone app and 911 always stay available — Lockdown never blocks calls.</div></div>
+      <div class="fineRow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12v4M12 8h.01"/></svg><div class="fineText"><b style="color:var(--ink)">Clock-proof:</b> sessions run on the phone's monotonic clock, so changing the time can't end a duration early.</div></div>
+      <div class="fineRow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12v4M12 8h.01"/></svg><div class="fineText"><b style="color:var(--ink)">Strict mode</b> also blocks Settings &amp; Play Store so the lock can't be switched off mid-session.</div></div>
+      <div class="fineRow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12v4M12 8h.01"/></svg><div class="fineText"><b style="color:var(--ink)">No app is unstoppable.</b> A determined user can disable accessibility in system settings — a commitment device, not a vault.</div></div>
+      <div class="fineRow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B942" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 12v4M12 8h.01"/></svg><div class="fineText"><b style="color:var(--ink)">On-device only.</b> No account, no cloud, no tracking, no telemetry.</div></div>
+    </div>
+  </div>
+  <div class="tabbar">
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h4v8z"/></svg>Focus</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>Apps</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 20h4V10H4zM10 20h4V4h-4zM16 20h4v-7h-4z"/></svg>Stats</div>
+    <div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 .0 8.001A4 4 0 0 0 12 8zm8.7 4l1.8 1.4a.9.9 0 0 1 .35 1.13l-2 4.9a.9.9 0 0 1-1.13.6l-2.13-.52a7.6 7.6 0 0 1-1 .65l-.6 2.24a.9.9 0 0 1-.88.67h-6a.9.9 0 0 1-.88-.67l-.6-2.24a7.6 7.6 0 0 1-1-.65l-2.13.52a.9.9 0 0 1-1.13-.6l-2-4.9a.9.9 0 0 1 .35-1.13L3.3 12a7.3 7.3 0 0 1 0-1.4l-2.2-1.4a.9.9 0 0 1-.35-1.13l2-4.9a.9.9 0 0 1 1.13-.6l2.13.52a7.6 7.6 0 0 1 1-.65l.6-2.24a.9.9 0 0 1 .88-.67h6a.9.9 0 0 1 .88.67l.6 2.24a7.6 7.6 0 0 1 1 .65l2.13-.52a.9.9 0 0 1 1.13.6l2 4.9a.9.9 0 0 1-.35 1.13L20.7 11c.3.45.3.55 0 1z"/></svg>Setup</div>
+  </div>
+</div>
+<div class="caption">setup.png — Setup: permissions, how it works, honest fine print.</div>
+
+<script>
+  // hero lock icon
+  document.getElementById('heroLock').innerHTML =
+    '<svg width="104" height="104" viewBox="0 0 24 24" fill="#0B1020"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg>';
+  // chart bars
+  const mins = [0, 25, 45, 60, 30, 0, 45, 90, 25, 0, 45, 60, 30, 42];
+  const labels = ['S','M','T','W','T','F','S','S','M','T','W','T','F','S'];
+  document.getElementById('chart').innerHTML = mins.map((m, i) =>
+    `<div class="barCol"><div class="barTrack"><div class="barFill" style="height:${Math.max(4, (m / 90) * 100)}%"></div></div><div class="barLab">${labels[i]}</div></div>`
+  ).join('');
+</script>
+</body>
+</html>
