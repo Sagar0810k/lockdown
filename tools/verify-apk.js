@@ -60,8 +60,8 @@ for (const h of all) console.log('  ' + h);
 const required = [
   'expo/modules/lockdown/LockdownModule',
   'expo/modules/lockdown/SessionStore',
-  'expo/modules/lockdown/LockdownAccessibilityService',
-  'expo/modules/lockdown/BlockActivity',
+  'expo/modules/lockdown/UsageMonitorService',
+  'expo/modules/lockdown/SessionEndReceiver',
   'expo/modules/ExpoModulesPackageList'
 ];
 let ok = true;

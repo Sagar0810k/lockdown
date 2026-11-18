@@ -69,4 +69,4 @@ jobs:
               --title "Lockdown 1.0.0" \
               --notes "Rolling release of the latest master build (currently $SHORT_SHA). Download the APK below and install it directly on your Android phone."
           gh release upload v1.0.0 Lockdown-1.0.0.apk --clobber
-          gh release edit v1.0.0 --title "Lockdown 1.0.0 ($SHORT_SHA)"
+          gh release edit v1.0.0 --title "Lockdown 1.0.0 ($SHORT_SHA)" --notes "Rolling release of the latest master build (currently $SHORT_SHA). Download the APK below and install it directly on your Android phone."
