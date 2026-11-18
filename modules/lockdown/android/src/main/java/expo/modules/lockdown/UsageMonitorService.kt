@@ -210,10 +210,14 @@ class UsageMonitorService : Service() {
     root.addView(attempts)
 
     val scroll = ScrollView(this).apply { isFillViewport = true; addView(root) }
+    val overlayType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+      WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+    else
+      WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
     val params = WindowManager.LayoutParams(
       WindowManager.LayoutParams.MATCH_PARENT,
       WindowManager.LayoutParams.MATCH_PARENT,
-      WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+      overlayType,
       WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or WindowManager.LayoutParams.FLAG_FULLSCREEN or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
       PixelFormat.TRANSLUCENT
     ).apply { gravity = Gravity.CENTER }
@@ -224,7 +228,7 @@ class UsageMonitorService : Service() {
       refreshOverlayContent()
     } catch (e: SecurityException) {
       // Overlay permission not granted — degrade silently to no overlay
-      removeOverlay()
+      hideOverlay()
       return
     }
     overlay = scroll
