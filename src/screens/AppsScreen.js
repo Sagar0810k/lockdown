@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, ScrollView, ActivityIndicator, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { C, RADIUS } from '../theme';
 import { LetterAvatar, Chip } from '../components';
@@ -73,7 +73,13 @@ export default function AppsScreen({ blocked, setBlocked }) {
     const isOn = selected.has(item.pkg);
     return (
       <TouchableOpacity activeOpacity={0.7} onPress={() => toggle(item)} style={styles.row}>
-        <LetterAvatar name={item.name} pkg={item.pkg} size={46} />
+        {item.icon ? (
+          <View style={styles.iconWrap}>
+            <Image source={{ uri: item.icon }} style={styles.icon} resizeMode="cover" />
+          </View>
+        ) : (
+          <LetterAvatar name={item.name} pkg={item.pkg} size={46} />
+        )}
         <View style={{ flex: 1 }}>
           <Text style={styles.appName} numberOfLines={1}>{item.name}</Text>
           <Text style={styles.appPkg} numberOfLines={1}>{item.pkg}</Text>
@@ -166,6 +172,8 @@ const styles = StyleSheet.create({
   selectionText: { color: C.muted, fontSize: 13 },
   linkText: { color: C.amber, fontWeight: '700', fontSize: 13 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 8, borderRadius: RADIUS },
+  iconWrap: { width: 46, height: 46, borderRadius: 14, overflow: 'hidden', backgroundColor: C.surface2, borderWidth: 1, borderColor: C.border },
+  icon: { width: 46, height: 46 },
   appName: { color: C.ink, fontWeight: '700', fontSize: 15 },
   appPkg: { color: C.muted, fontSize: 11, marginTop: 1 },
   center: { alignItems: 'center', justifyContent: 'center', padding: 40, gap: 12 },

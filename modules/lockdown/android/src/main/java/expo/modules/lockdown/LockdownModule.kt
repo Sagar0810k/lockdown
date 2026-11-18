@@ -19,14 +19,26 @@ class LockdownModule : Module() {
         .filter { it != ctx.packageName }
         .distinct()
         .map { pkg ->
-          mapOf(
-            "pkg" to pkg,
-            "name" to try {
-              pm.getApplicationInfo(pkg, 0).let { pm.getApplicationLabel(it).toString() }
-            } catch (e: Exception) {
-              pkg
-            }
-          )
+          val label = try {
+            pm.getApplicationInfo(pkg, 0).let { pm.getApplicationLabel(it).toString() }
+          } catch (e: Exception) {
+            pkg
+          }
+          val icon = try {
+            val drawable = pm.getApplicationIcon(pkg)
+            val size = 96
+            val bitmap = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+            val canvas = android.graphics.Canvas(bitmap)
+            drawable.setBounds(0, 0, size, size)
+            drawable.draw(canvas)
+            val out = java.io.ByteArrayOutputStream()
+            bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 90, out)
+            bitmap.recycle()
+            "data:image/png;base64," + android.util.Base64.encodeToString(out.toByteArray(), android.util.Base64.NO_WRAP)
+          } catch (e: Exception) {
+            ""
+          }
+          mapOf("pkg" to pkg, "name" to label, "icon" to icon)
         }
         .sortedBy { (it["name"] as String).lowercase() }
         .toList()
@@ -45,6 +57,7 @@ class LockdownModule : Module() {
         (now + ms) to ms
       }
       SessionStore.start(ctx, blockedPackages.toSet(), strict, silence, endWall, durationMs)
+      UsageMonitorService.start(ctx)
       SessionStore.status(ctx)
     }
 
@@ -80,10 +93,18 @@ class LockdownModule : Module() {
       nm?.isNotificationPolicyAccessGranted == true
     }
 
-    AsyncFunction("isAccessibilityEnabled") {
+    AsyncFunction("hasUsageAccess") {
       val ctx = appContext.reactContext ?: return@AsyncFunction false
-      val enabled = Settings.Secure.getString(ctx.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES) ?: ""
-      enabled.contains("LockdownAccessibilityService")
+      val appOps = ctx.getSystemService(android.app.AppOpsManager::class.java)
+      val uid = ctx.applicationInfo.uid
+      val packageName = ctx.packageName
+      val mode = appOps?.unsafeCheckOpNoThrow(android.app.AppOpsManager.OPSTR_GET_USAGE_STATS, uid, packageName)
+      mode == android.app.AppOpsManager.MODE_ALLOWED
+    }
+
+    AsyncFunction("canDrawOverlays") {
+      val ctx = appContext.reactContext ?: return@AsyncFunction false
+      android.provider.Settings.canDrawOverlays(ctx)
     }
 
     AsyncFunction("areNotificationsEnabled") {
@@ -93,7 +114,12 @@ class LockdownModule : Module() {
       nm?.areNotificationsEnabled() == true
     }
 
-    Function("openAccessibilitySettings") { open(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+    Function("openUsageAccessSettings") { open(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)) }
+    Function("openOverlaySettings") {
+      val ctx = appContext.reactContext
+      if (ctx == null) false
+      else open(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, android.net.Uri.parse("package:${ctx.packageName}")))
+    }
     Function("openNotificationPolicyAccessSettings") { open(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)) }
     Function("openNotificationSettings") {
       val ctx = appContext.reactContext

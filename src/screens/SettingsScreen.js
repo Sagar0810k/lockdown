@@ -6,19 +6,20 @@ import { Card, SectionTitle, PermissionDot } from '../components';
 import { Lockdown, nativeAvailable } from '../native';
 
 export default function SettingsScreen({ refreshTick }) {
-  const [perms, setPerms] = useState({ accessibility: null, dnd: null, notifications: null });
+  const [perms, setPerms] = useState({ usage: null, overlay: null, dnd: null, notifications: null });
 
   const check = async () => {
     if (!nativeAvailable) return;
     try {
-      const [accessibility, dnd, notifications] = await Promise.all([
-        Lockdown.isAccessibilityEnabled(),
+      const [usage, overlay, dnd, notifications] = await Promise.all([
+        Lockdown.hasUsageAccess(),
+        Lockdown.canDrawOverlays(),
         Lockdown.hasNotificationPolicyAccess(),
         Lockdown.areNotificationsEnabled(),
       ]);
-      setPerms({ accessibility, dnd, notifications });
+      setPerms({ usage, overlay, dnd, notifications });
     } catch {
-      setPerms({ accessibility: false, dnd: false, notifications: false });
+      setPerms({ usage: false, overlay: false, dnd: false, notifications: false });
     }
   };
 
@@ -37,10 +38,17 @@ export default function SettingsScreen({ refreshTick }) {
       <SectionTitle>Permissions</SectionTitle>
       <Card style={{ gap: 4, paddingVertical: 8 }}>
         <PermRow
-          title="Accessibility access"
-          desc="Lets Lockdown see which app is open and show the lock screen — it never reads your screen content"
-          ok={perms.accessibility}
-          onGrant={() => Lockdown?.openAccessibilitySettings()}
+          title="Usage access"
+          desc="Lets Lockdown see which app is in the foreground — the system's own usage-stats channel, not accessibility"
+          ok={perms.usage}
+          onGrant={() => Lockdown?.openUsageAccessSettings()}
+        />
+        <View style={styles.divider} />
+        <PermRow
+          title="Display over other apps"
+          desc="Full-screen lock shown over blocked apps during a session — you won't touch the underlying app until time ends"
+          ok={perms.overlay}
+          onGrant={() => Lockdown?.openOverlaySettings()}
         />
         <View style={styles.divider} />
         <PermRow
@@ -52,7 +60,7 @@ export default function SettingsScreen({ refreshTick }) {
         <View style={styles.divider} />
         <PermRow
           title="Notifications"
-          desc="One quiet note when a session completes — nothing else, ever"
+          desc="One quiet 'locked in' status while a session runs, plus one note when it completes"
           ok={perms.notifications}
           onGrant={() => Lockdown?.openNotificationSettings()}
         />
@@ -70,8 +78,8 @@ export default function SettingsScreen({ refreshTick }) {
         <FinePrint text="EMERGENCY: your Phone app and 911 always stay available — Lockdown never blocks calls." />
         <FinePrint text="Clock-proof by design: sessions run on the phone's monotonic clock, so changing the time can't end a duration early." />
         <FinePrint text="Strict mode blocks Settings and the Play Store so the lock can't be switched off mid-session." />
-        <FinePrint text="No app can be 100% unstoppable. A determined user can always disable accessibility from system settings — Lockdown is a commitment device, not a vault." />
-        <FinePrint text="Everything stays on this phone. No account, no cloud, no tracking." />
+        <FinePrint text="No app can be 100% unstoppable. A determined user can always force-disable Lockdown from system settings — Lockdown is a commitment device, not a vault." />
+        <FinePrint text="Uses the system's usage-stats channel and a display-over-apps overlay — no accessibility permission, so Play Protect doesn't flag it." />
       </Card>
 
       <SectionTitle>About</SectionTitle>

@@ -61,6 +61,7 @@ object SessionStore {
     val attempts = p.getInt("attempts_total", 0)
     restoreDnd(ctx)
     cancelAlarm(ctx)
+    UsageMonitorService.stop(ctx) // idempotent; no-op if not running
     if (writeReport) {
       val minutes = ((System.currentTimeMillis() - startedWall) / 60000).coerceAtLeast(0)
       p.edit()

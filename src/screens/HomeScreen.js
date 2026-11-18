@@ -16,19 +16,19 @@ export default function HomeScreen({ blocked, onStart, goToApps, goToSettings, r
   const [silence, setSilence] = useState(true);
   const [strict, setStrict] = useState(false);
   const [summary, setSummary] = useState({ todayMinutes: 0, todayAttempts: 0, streak: 0 });
-  const [perms, setPerms] = useState({ accessibility: true, dnd: true });
+  const [perms, setPerms] = useState({ usage: true, overlay: true, dnd: true });
 
   useEffect(() => {
     loadStats().then((s) => setSummary(summarize(s)));
     if (nativeAvailable) {
-      Promise.all([Lockdown.isAccessibilityEnabled(), Lockdown.hasNotificationPolicyAccess()])
-        .then(([accessibility, dnd]) => setPerms({ accessibility, dnd }))
+      Promise.all([Lockdown.hasUsageAccess(), Lockdown.canDrawOverlays(), Lockdown.hasNotificationPolicyAccess()])
+        .then(([usage, overlay, dnd]) => setPerms({ usage, overlay, dnd }))
         .catch(() => {});
     }
   }, [refreshTick]);
 
   const blockedCount = blocked.length;
-  const permsReady = perms.accessibility && perms.dnd;
+  const permsReady = perms.usage && perms.overlay && perms.dnd;
 
   const start = async () => {
     if (!nativeAvailable) {
@@ -91,7 +91,7 @@ export default function HomeScreen({ blocked, onStart, goToApps, goToSettings, r
         <TouchableOpacity activeOpacity={0.8} onPress={goToSettings} style={styles.warnBanner}>
           <Ionicons name="warning" size={18} color={C.amber} />
           <Text style={styles.warnText}>
-            Finish setup — grant {perms.accessibility ? 'notification (DND)' : 'accessibility'} access so blocking actually works.
+            Finish setup — grant usage access, display-over-apps and Do Not Disturb so blocking actually works.
           </Text>
           <Ionicons name="chevron-forward" size={16} color={C.muted} />
         </TouchableOpacity>

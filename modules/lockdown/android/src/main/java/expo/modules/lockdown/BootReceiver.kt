@@ -9,6 +9,9 @@ class BootReceiver : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent) {
     if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
       SessionStore.rearmAfterBoot(context)
+      if (SessionStore.isActive(context)) {
+        UsageMonitorService.start(context)
+      }
     }
   }
 }

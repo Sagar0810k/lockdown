@@ -1,10 +1,13 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
   <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
   <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
   <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+  <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
   <queries>
     <intent>
@@ -15,24 +18,10 @@
 
   <application>
     <service
-      android:name=".LockdownAccessibilityService"
-      android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-      android:exported="true"
-      android:label="@string/lockdown_service_label">
-      <intent-filter>
-        <action android:name="android.accessibilityservice.AccessibilityService" />
-      </intent-filter>
-      <meta-data
-        android:name="android.accessibilityservice"
-        android:resource="@xml/lockdown_accessibility_service" />
-    </service>
-
-    <activity
-      android:name=".BlockActivity"
+      android:name=".UsageMonitorService"
       android:exported="false"
-      android:excludeFromRecents="true"
-      android:launchMode="singleInstance"
-      android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
+      android:foregroundServiceType="dataSync"
+      android:label="@string/lockdown_service_label" />
 
     <receiver
       android:name=".SessionEndReceiver"

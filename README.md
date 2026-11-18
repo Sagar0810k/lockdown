@@ -68,15 +68,15 @@ React Native (Expo SDK 58) UI + a small native Kotlin core in `modules/lockdown/
    └────────────┬─────────────┘
                 │ SessionStore (SharedPreferences)
    ┌────────────▼──────────────────────────────────┐
-   │ LockdownAccessibilityService  (foreground app │
-   │  watcher) → BlockActivity (full-screen lock)  │
-   │ SessionEndReceiver → restore DND + notify     │
-   │ BootReceiver → re-arm DND + end alarm         │
-   └───────────────────────────────────────────────┘
+   │ UsageMonitorService (foreground service)                  │
+   │  UsageStats polling → overlay lock screen                 │
+   │ SessionEndReceiver → restore DND + notify                 │
+   │ BootReceiver → re-arm DND + end alarm                     │
+   └───────────────────────────────────────────────────────────┘
 ```
 
-- `LockdownAccessibilityService` listens for `TYPE_WINDOW_STATE_CHANGED`. If the foreground app is on your blocklist during an active session, it counts the attempt and puts `BlockActivity` in front of it.
-- `BlockActivity` is a pure-Android full-screen activity — it survives the JS bundle being killed and shows a live countdown + hold-to-quit (3s normal / 10s strict).
+- `UsageMonitorService` runs as a foreground service while a session is active and polls `UsageStatsManager` every ~800ms. If the foreground app is on your blocklist, a full-screen overlay swallows every touch so it is unusable until time is up — the same mechanism Digital Wellbeing uses. No Accessibility permission, so Play Protect does not flag installs.
+- The overlay is a pure-Android full-screen window — it survives the JS bundle being killed and shows a live countdown.
 - `SessionStore` anchors the session to `SystemClock.elapsedRealtime()`, so changing the phone clock can't shorten a duration; a reboot re-anchors from the wall-clock end and re-applies everything.
 - Stats (minutes focused, temptations, per-app counts) are stored in AsyncStorage; the session itself is authoritative native-side, so stats never lie.
 
@@ -86,7 +86,8 @@ Strict mode additionally adds `com.android.settings`, `com.android.vending` and 
 
 | Permission | Why it's needed | If you deny it |
 |---|---|---|
-| **Accessibility** (bind to service) | Detect which app is in the foreground and show the lock screen | Blocking is disabled entirely |
+| **Usage access** (OPSTR_GET_USAGE_STATS) | Detect which app is in the foreground | Blocking is disabled entirely |
+| **Display over other apps** (SYSTEM_ALERT_WINDOW) | Show the full-screen lock over the blocked app | Blocking is disabled entirely |
 | **Notification Policy access** (DND) | Silence calls/notifications; restore your previous ringer state | Phone won't be silenced |
 | **Receive boot completed** | Re-arm the session after a reboot | Session silently ends on reboot |
 | **Use exact alarm** | Fire the session-end alarm exactly on time, even in Doze | End may be delayed by OEM battery savers |
@@ -98,7 +99,7 @@ Strict mode additionally adds `com.android.settings`, `com.android.vending` and 
 | Tab | What it does |
 |---|---|
 | **Focus** | Preset durations (15/25/45/60/90m) or custom, or "Until a time" mode, silence/strict toggles, streak badge, one-tap **START LOCKDOWN** |
-| **Apps** | Search, category filters (Social / Video / Games / Chat), select/clear, letter-avatar list |
+| **Apps** | Search, category filters (Social / Video / Games / Chat), select/clear, real app icons from the OS |
 | **Stats** | Minutes today / week, day streak, 14-day chart, temptation leaderboard, recent sessions with completion status |
 | **Setup** | Permission grants, how locking works, honest fine print |
 
@@ -112,7 +113,7 @@ The app is distributed as an installable APK via **GitHub Releases** (sideloaded
    curl -L -o Lockdown-1.0.0.apk https://github.com/Sagar0810k/lockdown/releases/download/v1.0.0/Lockdown-1.0.0.apk
    adb install Lockdown-1.0.0.apk
    ```
-3. Open the app → **Setup** tab → grant the two permissions (Accessibility, Do Not Disturb) → pick apps in **Apps** → **START LOCKDOWN**.
+3. Open the app → **Setup** tab → grant the permissions (Usage access, Display over other apps, Do Not Disturb) → pick apps in **Apps** → **START LOCKDOWN**.
 
 First launch takes ~2 minutes. Everything is on-device — you don't sign in to anything.
 
@@ -148,7 +149,7 @@ lockdown/
 ├── eas.json               # preview = APK, production = app-bundle
 ├── assets/                # icon, adaptive icon, splash, favicon (hand-drawn SVG → GDI+)
 ├── docs/                  # this README's images (mockups regenerated from RN sources)
-├── modules/lockdown/      # native Kotlin module + accessibility service
+├── modules/lockdown/      # native Kotlin module + usage monitor service + overlay
 ├── plugins/               # Expo config plugins (ABI filter, R8 keep rules)
 └── src/
     ├── native.js, storage.js, theme.js, components.js
@@ -161,17 +162,17 @@ lockdown/
 |---|---|
 | User changes system clock | Duration sessions anchor to `elapsedRealtime()` — unaffected. Wall-clock "until" sessions follow the wall clock by design |
 | Reboot mid-session | `BootReceiver` re-arms DND and the exact end alarm; session never silently dies |
-| App force-stopped / swiped from recents | Enforcement lives in the system accessibility service, not in the app — killing the UI doesn't stop blocking |
+| App force-stopped / swiped from recents | Enforcement lives in a foreground service, not in the app — killing the UI does not stop blocking |
 | Emergency call during focus | Dialer is never on the blocklist — by design |
 | Escape attempt (Settings/Play Store/uninstall) | Blocked in Strict mode; soft-logged as temptation in other modes |
 | Clock-change bypass | Inherent to wall-clock "until" sessions; duration sessions can't be shortened |
-| Disabled accessibility service | App detects it on resume and nags you to re-enable (soft fail, not a fight) |
+| Disabled usage access / overlay | App detects it on resume and nags you to re-enable (soft fail, not a fight) |
 
 See `lockdown-thinking.md` for the full design rationale, threat model and what was deliberately cut.
 
 ## Honest limitations
 
-- **Not tamper-proof.** A determined user can disable the accessibility service in system settings — no ordinary app can prevent that without Device Owner. Lockdown is a commitment device, not a vault.
+- **Not tamper-proof.** A determined user can disable usage access or the overlay in system settings — no ordinary app can prevent that without Device Owner. Lockdown is a commitment device, not a vault.
 - Some OEM battery savers (Xiaomi/Oppo/Vivo aggressive kill modes) may defer the exact end alarm; the session still restores on next boot/unlock.
 - Force-stopping the app from system settings freezes enforcement until it's restarted (the session itself re-arms on reboot).
 - 14-day stats chart is a view, not a data export — no accounts, no sync, nothing leaves the phone.
@@ -182,14 +183,14 @@ See `lockdown-thinking.md` for the full design rationale, threat model and what 
 | Symptom | Likely cause / fix |
 |---|---|
 | GRANT buttons do nothing / "build required" | You have the pre–`ee6b612` APK. It is missing its native module under R8 minification. Install the next build; see the warning at the top |
-| App list is empty in Apps tab | Launcher visibility query not granted or the phone has no launchable apps besides system ones; also check accessibility service is enabled |
+| App list is empty in Apps tab | Launcher visibility query not granted or the phone has no launchable apps besides system ones; also check that usage access is enabled |
 | Session ends late | OEM battery saver; add Lockdown to your "never kill" / battery-usage whitelist |
 | Phone rings during focus | DND access not granted, or the "Silence the phone" toggle is off |
 | Can't install APK | Enable "Install unknown apps" for your browser/file manager; verify the APK SHA against the one printed on the EAS builds page |
 
 ## Contributing
 
-Small, focused codebase by design. If you change anything in `modules/lockdown/`, run the real APK on a real device before proposing — unit tests can't see the accessibility path.
+Small, focused codebase by design. If you change anything in `modules/lockdown/`, run the real APK on a real device before proposing — unit tests cannot see the foreground-app detection path.
 
 1. Fork → branch → `npm ci && npx expo prebuild`
 2. Test on at least one physical device (Android 14/15)

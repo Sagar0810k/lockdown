@@ -1,4 +1,4 @@
 <resources>
   <string name="lockdown_service_label">Lockdown Focus Guard</string>
-  <string name="lockdown_service_description">Watches which app is in the foreground and shows the Lockdown screen over apps you chose to block during a focus session. It never reads your screen content.</string>
 </resources>
+
