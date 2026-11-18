@@ -23,7 +23,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#0B1020"
         }
-      ]
+      ],
+      "./plugins/withLockdownKeepRules.js"
     ],
     "version": "1.0.0",
     "orientation": "portrait",
