@@ -42,6 +42,7 @@ Willpower loses to dopamine. Lockdown doesn't fight your willpower with willpowe
 - **Silent sessions** — real Do Not Disturb (calls silenced too); your previous ringer state is restored automatically on end.
 - **Countdown lock screen** — opening a blocked app shows time remaining and how many times you've reached for it ("temptations resisted").
 - **Two timer modes** — "Focus for 45m" (clock-change-proof, anchored to `elapsedRealtime()`) or "Block until 9:30 PM".
+- **Timetable auto-lock** — weekly study blocks (days + start/end times) start a session by themselves, with your blocklist, silence and strict settings. No app open, no willpower.
 - **Strict mode** — no early quit except a 10-second emergency hold; also blocks **Settings, Play Store and the package installer** so you can't flip the switch mid-session.
 - **Survives reboot** — session state lives in native `SharedPreferences`; a reboot re-arms DND and the end alarm via `BootReceiver`.
 - **Temptation tracking** — every blocked-app open attempt is counted; 14-day chart, day streak, per-app leaderboard in Stats.
@@ -57,22 +58,19 @@ Willpower loses to dopamine. Lockdown doesn't fight your willpower with willpowe
 React Native (Expo SDK 58) UI + a small native Kotlin core in `modules/lockdown/` — deliberately minimal, no third-party blocker libraries:
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                        JS / React Native                     │
-│   Focus tab   Apps tab   Stats tab   Setup tab   Session     │
-└───────────────┬──────────────────────────┬───────────────────┘
-                │ requireNativeModule      │ AsyncStorage
-   ┌────────────▼─────────────┐  ┌─────────▼──────────────────┐
-   │   LockdownModule.kt      │  │  stats + blocked list      │
-   │   (bridge, Kotlin)       │  └────────────────────────────┘
-   └────────────┬─────────────┘
-                │ SessionStore (SharedPreferences)
-   ┌────────────▼──────────────────────────────────┐
-   │ UsageMonitorService (foreground service)                  │
-   │  UsageStats polling → overlay lock screen                 │
-   │ SessionEndReceiver → restore DND + notify                 │
-   │ BootReceiver → re-arm DND + end alarm                     │
-   └───────────────────────────────────────────────────────────┘
+JS / React Native
+  Focus · Timetable · Apps · Stats · Setup · Session takeover
+        |                              |
+        | requireNativeModule          | AsyncStorage
+  LockdownModule.kt                    stats + blocked list + timetable
+        |
+  SessionStore / TimetableStore (SharedPreferences)
+        |
+  UsageMonitorService (foreground service)
+    UsageStats polling -> overlay lock screen
+    SessionEndReceiver -> restore DND + notify
+    TimetableReceiver -> auto-start session at block start
+    BootReceiver -> re-arm DND, end alarm + timetable alarms
 ```
 
 - `UsageMonitorService` runs as a foreground service while a session is active and polls `UsageStatsManager` every ~800ms. If the foreground app is on your blocklist, a full-screen overlay swallows every touch so it is unusable until time is up — the same mechanism Digital Wellbeing uses. No Accessibility permission, so Play Protect does not flag installs.
@@ -81,6 +79,15 @@ React Native (Expo SDK 58) UI + a small native Kotlin core in `modules/lockdown/
 - Stats (minutes focused, temptations, per-app counts) are stored in AsyncStorage; the session itself is authoritative native-side, so stats never lie.
 
 Strict mode additionally adds `com.android.settings`, `com.android.vending` and the package installer to the blocklist for the session, closing the obvious "turn off the permission" escape hatch.
+
+### Timetable auto-lock
+
+The **Timetable** tab holds your weekly study blocks. Each block is a label, a set of weekdays, a start time and an end time. When a block's start time arrives, `TimetableReceiver` starts a normal session that ends at the block's end time — using your current blocklist plus the silence/strict toggles from that tab.
+
+- Alarms are `AlarmManager.setAlarmClock()` calls, so they fire in Doze and are allowed to start the foreground monitor from the background. They fall back to `setExactAndAllowWhileIdle()` if exact-alarm permission is missing.
+- Deleting a block cancels its pending alarm; the app re-arms on boot, on clock/timezone changes, and whenever it comes to the foreground.
+- An end time earlier than the start time (e.g. 10 PM → 1 AM) is treated as the next day.
+- If a block starts while another session is live, the old session is replaced (not stacked). If the blocklist is empty, the block is skipped and the schedule stays armed.
 
 ## Permissions
 
@@ -99,6 +106,7 @@ Strict mode additionally adds `com.android.settings`, `com.android.vending` and 
 | Tab | What it does |
 |---|---|
 | **Focus** | Preset durations (15/25/45/60/90m) or custom, or "Until a time" mode, silence/strict toggles, streak badge, one-tap **START LOCKDOWN** |
+| **Timetable** | Weekly study blocks (days + start/end), master auto-lock switch, per-block enable/edit/delete, "next auto-lock" preview, auto-session silence/strict settings |
 | **Apps** | Search, category filters (Social / Video / Games / Chat), select/clear, real app icons from the OS |
 | **Stats** | Minutes today / week, day streak, 14-day chart, temptation leaderboard, recent sessions with completion status |
 | **Setup** | Permission grants, blocking diagnostics, how locking works, honest fine print |
@@ -154,16 +162,18 @@ lockdown/
 ├── modules/lockdown/      # native Kotlin module + usage monitor service + overlay
 ├── plugins/               # Expo config plugins (ABI filter, R8 keep rules)
 └── src/
-    ├── native.js, storage.js, theme.js, components.js
-    └── screens/           # Home, Apps, Session, Stats, Settings
+    ├── native.js, storage.js, timetable.js, theme.js, components.js
+    └── screens/           # Home, Timetable, Apps, Session, Stats, Settings
 ```
 
 ## Edge cases & decisions
 
 | Edge case | Decision |
 |---|---|
-| User changes system clock | Duration sessions anchor to `elapsedRealtime()` — unaffected. Wall-clock "until" sessions follow the wall clock by design |
-| Reboot mid-session | `BootReceiver` re-arms DND and the exact end alarm; session never silently dies |
+| User changes system clock | Duration sessions anchor to `elapsedRealtime()` — unaffected. Wall-clock "until" sessions follow the wall clock by design. Timetable alarms re-arm on clock/timezone changes |
+    │ BootReceiver → re-arm DND, end alarm + timetable alarms                │
+| Timetable block starts while another session is live | The old session is replaced (never stacked); a block with an empty blocklist is skipped and stays armed |
+| Timetable block ends after midnight | End time earlier than the start rolls to the next day |
 | App force-stopped / swiped from recents | Enforcement lives in a foreground service, not in the app — killing the UI does not stop blocking |
 | Emergency call during focus | Dialer is never on the blocklist — by design |
 | Escape attempt (Settings/Play Store/uninstall) | Blocked in Strict mode; soft-logged as temptation in other modes |
@@ -187,6 +197,8 @@ See `lockdown-thinking.md` for the full design rationale, threat model and what 
 | GRANT buttons do nothing / "build required" | You have the pre–`ee6b612` APK. It is missing its native module under R8 minification. Install the next build; see the warning at the top |
 | App list is empty in Apps tab | Launcher visibility query not granted or the phone has no launchable apps besides system ones; also check that usage access is enabled |
 | Session ends late | OEM battery saver; add Lockdown to your "never kill" / battery-usage whitelist |
+| Auto-lock never starts | Timetable master switch off, no blocklist picked, or exact-alarm permission revoked; check the blocklist and Setup permissions |
+| Auto-lock fires at the wrong time | System clock/timezone changed; open the app once so the alarms re-arm, or reboot |
 | DND works but app opens | Monitor is not seeing or not drawing. Check **Setup → Blocking diagnostics** (`CHECK AGAIN` after opening the blocked app), then whitelist Lockdown from battery optimization/auto-launch restrictions |
 | Phone rings during focus | DND access not granted, or the "Silence the phone" toggle is off |
 | Can't install APK | Enable "Install unknown apps" for your browser/file manager; verify the APK SHA against the one printed on the EAS builds page |

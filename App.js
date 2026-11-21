@@ -8,8 +8,10 @@ import AppsScreen from './src/screens/AppsScreen';
 import StatsScreen from './src/screens/StatsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import SessionScreen from './src/screens/SessionScreen';
+import TimetableScreen from './src/screens/TimetableScreen';
 import { Lockdown, nativeAvailable, safeStatus } from './src/native';
 import { loadBlocked, consumeNativeReport } from './src/storage';
+import { loadTimetable, saveTimetable, syncTimetableNative } from './src/timetable';
 
 export default function App() {
   const [tab, setTab] = useState('home');
@@ -44,10 +46,33 @@ export default function App() {
     loadBlocked().then(setBlocked);
     syncFromNative();
     const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active') syncFromNative();
+      if (state !== 'active') return;
+      syncFromNative();
+      // Re-arm alarms after clock/timezone changes or an app update.
+      loadTimetable().then(syncTimetableNative).catch(() => {});
     });
     return () => sub.remove();
   }, [syncFromNative]);
+
+  // Auto-lock sessions start natively, so poll lightly to surface them in the UI.
+  useEffect(() => {
+    const timer = setInterval(syncFromNative, 5000);
+    return () => clearInterval(timer);
+  }, [syncFromNative]);
+
+  // The native alarm scheduler needs the current blocklist; keep its copy in sync.
+  const handleBlockedChange = useCallback(async (next) => {
+    setBlocked(next);
+    try {
+      const tt = await loadTimetable();
+      const pkgs = next.map((b) => b.pkg);
+      if (JSON.stringify(tt.blocked || []) !== JSON.stringify(pkgs)) {
+        await saveTimetable({ ...tt, blocked: pkgs });
+      }
+    } catch {
+      // best-effort — the next timetable save fixes it
+    }
+  }, []);
 
   const handleSessionStarted = (status, meta) => {
     setSession(status);
@@ -92,7 +117,14 @@ export default function App() {
               goToSettings={() => setTab('settings')}
             />
           )}
-          {tab === 'apps' && <AppsScreen blocked={blocked} setBlocked={setBlocked} />}
+          {tab === 'timetable' && (
+            <TimetableScreen
+              blocked={blocked}
+              goToApps={() => setTab('apps')}
+              refreshTick={refreshTick}
+            />
+          )}
+          {tab === 'apps' && <AppsScreen blocked={blocked} setBlocked={handleBlockedChange} />}
           {tab === 'stats' && <StatsScreen refreshTick={refreshTick} />}
           {tab === 'settings' && <SettingsScreen refreshTick={refreshTick} />}
         </View>
@@ -104,6 +136,7 @@ export default function App() {
 
 const TABS = [
   { id: 'home', icon: 'home', label: 'Focus' },
+  { id: 'timetable', icon: 'calendar', label: 'Timetable' },
   { id: 'apps', icon: 'grid', label: 'Apps' },
   { id: 'stats', icon: 'bar-chart', label: 'Stats' },
   { id: 'settings', icon: 'settings', label: 'Setup' },

@@ -12,6 +12,7 @@ class BootReceiver : BroadcastReceiver() {
       if (SessionStore.isActive(context)) {
         UsageMonitorService.start(context)
       }
+      TimetableScheduler.scheduleAll(context)
     }
   }
 }

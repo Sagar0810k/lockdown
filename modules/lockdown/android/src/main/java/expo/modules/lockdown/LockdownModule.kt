@@ -74,6 +74,22 @@ class LockdownModule : Module() {
       SessionStore.status(ctx)
     }
 
+    AsyncFunction("setTimetable") { json: String ->
+      val ctx = appContext.reactContext
+        ?: throw IllegalStateException("Context unavailable")
+      TimetableStore.save(ctx, json)
+      TimetableScheduler.scheduleAll(ctx)
+      true
+    }
+
+    AsyncFunction("clearTimetable") {
+      val ctx = appContext.reactContext
+        ?: throw IllegalStateException("Context unavailable")
+      TimetableStore.clear(ctx)
+      TimetableScheduler.cancelAll(ctx)
+      true
+    }
+
     AsyncFunction("consumeReport") {
       val ctx = appContext.reactContext
         ?: throw IllegalStateException("Context unavailable")
