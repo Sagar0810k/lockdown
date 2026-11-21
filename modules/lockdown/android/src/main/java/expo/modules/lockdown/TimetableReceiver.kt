@@ -11,7 +11,7 @@ import android.content.Intent
 class TimetableReceiver : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent) {
     when (intent.action) {
-      Intent.ACTION_TIME_SET,
+      Intent.ACTION_TIME_CHANGED,
       Intent.ACTION_DATE_CHANGED,
       Intent.ACTION_TIMEZONE_CHANGED -> {
         TimetableScheduler.scheduleAll(context)
